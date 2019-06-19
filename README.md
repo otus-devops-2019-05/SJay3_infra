@@ -13,7 +13,10 @@ SJay3 Infra repository
 Так же, в GCP был создан проект **infra**
 
 ### Создание ssh ключей
+#### для Windows
+Можно сгенерировать ключи с помощью puttygen
 
+#### для Linux
 
 
 ## Homework 2 (play-travis)
