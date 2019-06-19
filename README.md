@@ -1,6 +1,8 @@
 # SJay3_infra
 SJay3 Infra repository
 
+## Homework 3 (cloud-bastion)
+
 ## Homework 2 (play-travis)
 В данном домашнем задании было сделано:
 - Добавлен функционал использования Pull Request Template
