@@ -12,11 +12,21 @@ SJay3 Infra repository
 Лучше всего использовать отдельный аккаунт Gmail.
 Так же, в GCP был создан проект **infra**
 
-### Создание ssh ключей
+### Создание ssh ключей и добавление их в GCP
 #### для Windows
 Можно сгенерировать ключи с помощью puttygen
 
 #### для Linux
+Генерируем ключ для пользователя *dusachev*
+
+```
+ssh-keygen -t rsa -f ~/.ssh/dusachev -C dusachev -P ""
+```
+#### добавление ключей в GCP
+Заходим в Compute Engine -> Metadata -> SSH Keys.
+Добавляем туда публичные ключи
+
+### Создание инстансов ВМ
 
 
 ## Homework 2 (play-travis)
