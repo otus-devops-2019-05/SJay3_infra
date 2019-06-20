@@ -37,13 +37,13 @@ ssh-keygen -t rsa -f ~/.ssh/dusachev -C dusachev -P ""
 Сначала запустим ssh-агент `eval "$(ssh-agent)"`
 Теперь добаваил ключ в агент: `ssh-add ~/.ssh/dusachev`
 #### Подключение через бастион-хост одной командой
-Принцип следующий: Мы подключаемся через proxycommand к бастиону (bastion_IP:35.228.209.11), после чего, тот проксирует нас на целевой сервер someinternalhost (someinternalhost_IP:10.166.0.5). Ключ `-W %h:%p` означает, что стандартный ввод и вывод будут форвардится на хост `%h` и порт `%p`. Эти переменные будут зарезолвены указаным хостом для подключения и портом.
+Принцип следующий: Мы подключаемся через proxycommand к бастиону (35.228.209.11), после чего, тот проксирует нас на целевой сервер someinternalhost (10.166.0.5). Ключ `-W %h:%p` означает, что стандартный ввод и вывод будут форвардится на хост `%h` и порт `%p`. Эти переменные будут зарезолвены указаным хостом для подключения и портом.
 
 ```
 ssh dusachev@10.166.0.5 -o "proxycommand ssh -W %h:%p -i ~/.ssh/dusachev dusachev@35.228.209.11"
 ```
 
-#### Подключение через бастион-хост с использованием алиаса (дополнительное задание со *)
+#### Подключение через бастион-хост с использованием алиаса (*)
 Для создания алиаса необходимо создать файл `~/.ssh/config` в котором прописать
 
 ``` shell
@@ -61,8 +61,73 @@ Host someinternalhost
 ssh someinternalhost
 ```
 
+### Подключение через VPN
+#### Установка и первоначальная настройка VPN-сервера
+Разрешим http/https трафик на машине bastion и установим vpn-server [Pritunl](https://pritunl.com/)
+
+```shell
+cat <<EOF> setupvpn.sh
+#!/bin/bash
+echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" > /etc/apt/sources.list.d/mongodb-org-3.4.list
+echo "deb http://repo.pritunl.com/stable/apt xenial main" > /etc/apt/sources.list.d/pritunl.list
+apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv 0C49F3730359A14518585931BC711F9BA15703C6
+apt-key adv --keyserver hkp://keyserver.ubuntu.com --recv 7568D9BB55FF9E5287D586017AE645C0CF8E292A
+apt-get --assume-yes update
+apt-get --assume-yes upgrade
+apt-get --assume-yes install pritunl mongodb-org
+systemctl start pritunl mongod
+systemctl enable pritunl mongod
+EOF
+```
+
+Выполним созданный скрипт. В результате мы получим установленный сервер pritunl и базу mongodb
+
+```shell
+sudo bash setupvpn.sh
+```
+
+Для настройки vpn необходимо через браузер зайти на https://<bastion_address>/setup и выполнить инструкции на экране. Далее, необходимо:
+ - залогиниться, добавить организацию, тестового пользователя, сервер. 
+ - Добавить сервер в организацию. 
+ - Создать правило файрвола в GCP для порта на котором запустился сервер.
+ - Добавить тег правила в инстанс ВМ
+
+Теперь необходимо установить openvpn-client на машину, с которой будет производиться подключение.
+#### Установка и настройка openvpn клиента на рабочую машину
+##### Для Ubuntu 18
+Установим openvpn
+
+```shell
+    sudo apt update
+    sudo apt install openvpn
+```
+
+Скачиваем с сервера файл `*.ovpn`. Для этого необходимо нажать на иконку с цепочкой у пользователя, профиль которого мы хотим скачать, копируем ссылку из первого окошка и выполняем:
+
+```shell
+wget https://35.228.209.11/key/AwBbkqSZvBaMUZ8hC5YtcR7i85MAyAG5.tar --no-check-certificate
+tar -xvf AwBbkqSZvBaMUZ8hC5YtcR7i85MAyAG5.tar
+```
+В результате в текущей директории мы получим ovpn-файл.
+Запускаем соединение с vpn-сервером:
+
+```shell
+sudo openvpn --config <path_to_ovpn_file>
+```
+Предложит ввести логин и пароль. Используем логин test и PIN в качестве пароля.
+Если на экране появится строка `Initialization Sequence Completed` значит соединение успешно установлено.
+
+#### Проверка работоспособности впн-сервера
+Для проверки подключимся с рабочей машины к vpn-серверу и попробуем зайти по ssh на someinternalhost (Заходить нужно с другой консоли):
+
+```shell
+ssh -i ~/.ssh/dusachev dusachev@10.166.0.5
+```
+
+### Настройка сертификата для панели управления Pritunl (*)
 
 
+----
 ## Homework 2 (play-travis)
 В данном домашнем задании было сделано:
 - Добавлен функционал использования Pull Request Template
