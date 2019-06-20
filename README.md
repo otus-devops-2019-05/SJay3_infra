@@ -43,6 +43,24 @@ ssh dusachev@10.166.0.5 -o "proxycommand ssh -W %h:%p -i ~/.ssh/dusachev dusache
 ```
 
 #### Подключение через бастион-хост с использованием алиаса (дополнительное задание со *)
+Для создания алиаса необходимо создать файл `~/.ssh/config` в котором прописать
+
+``` shell
+Host someinternalhost
+  Hostname 10.166.0.5
+  ForwardAgent yes
+  User dusachev
+  ProxyCommand ssh -W %h:%p -i ~/.ssh/dusachev dusachev@35.228.209.11
+
+```
+
+Теперь, что бы подключиться через бастион-хост нужно выполнить:
+
+``` shell
+ssh someinternalhost
+```
+
+
 
 ## Homework 2 (play-travis)
 В данном домашнем задании было сделано:
