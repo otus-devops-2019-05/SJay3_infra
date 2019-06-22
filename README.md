@@ -9,8 +9,8 @@ SJay3 Infra repository
 
 ### Ревизиты для проверки
 
-    testapp_IP = 
-    testapp_port = 
+    testapp_IP = 35.228.209.11
+    testapp_port = 9292
 
 ### Установка gcloud
 [Инструкция по установке](https://cloud.google.com/sdk/docs/#deb)
@@ -28,6 +28,7 @@ gcloud compute instances create reddit-app\
 ```
 
 ### Деплой приложения
+Выполняем на машине reddit-app
 #### Установка ruby
 
 ```shell
@@ -58,7 +59,22 @@ sudo systemctl start mongod
 sudo systemctl enable mongod
 ```
 
-#### Деплой приложения
+#### Установка приложения
+
+В домашней директории пользователя на машине reddit-app выполним:
+
+```shell
+git clone -b monolith https://github.com/express42/reddit.git
+cd reddit && bundle install
+```
+
+Запускаем проект и проверяем, что он работает:
+
+```shell
+puma -d
+ps aux | grep puma
+```
+
 
 
 ----
