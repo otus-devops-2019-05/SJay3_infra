@@ -1,8 +1,6 @@
 # SJay3_infra
 SJay3 Infra repository
 
-[TOC]
-
 ## Homework 3 (cloud-bastion)
 В данном домашнем задании было сделано:
 - Создание учетной записи в GCP
@@ -13,6 +11,7 @@ SJay3 Infra repository
 - Настройка ssl сертификатов для vpn-сервера
 
 ### Реквизиты ВМ
+
     bastion_IP = 35.228.209.11
     someinternalhost_IP = 10.166.0.5
 
