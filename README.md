@@ -1,6 +1,14 @@
 # SJay3_infra
 SJay3 Infra repository
 
+## Homework 4 (cloud-app)
+В данном домашнем задании было сделано:
+
+
+
+
+
+----
 ## Homework 3 (cloud-bastion)
 В данном домашнем задании было сделано:
 - Создание учетной записи в GCP
