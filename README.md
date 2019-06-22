@@ -12,6 +12,10 @@ SJay3 Infra repository
 - Подклчюение по vpn через бастион-хост
 - Настройка ssl сертификатов для vpn-сервера
 
+### Реквизиты ВМ
+    bastion_IP = 35.228.209.11
+    someinternalhost_IP = 10.166.0.5
+
 ### Регистрация учетной записи в GCP
 Регистрация производится по ссылке: https://cloud.google.com/free/
 Лучше всего использовать отдельный аккаунт Gmail.
@@ -74,10 +78,6 @@ ssh someinternalhost
 ```
 
 ### Подключение через VPN
-
-    bastion_IP = 35.228.209.11
-    someinternalhost_IP = 10.166.0.5
-
 #### Установка и первоначальная настройка VPN-сервера
 Разрешим http/https трафик на машине bastion и установим vpn-server [Pritunl](https://pritunl.com/)
 
