@@ -1,6 +1,8 @@
 # SJay3_infra
 SJay3 Infra repository
 
+[TOC]
+
 ## Homework 3 (cloud-bastion)
 В данном домашнем задании было сделано:
 - Создание учетной записи в GCP
@@ -29,9 +31,6 @@ ssh-keygen -t rsa -f ~/.ssh/dusachev -C dusachev -P ""
 Заходим в Compute Engine -> Metadata -> SSH Keys.
 Добавляем туда публичные ключи
 
-### Создание инстансов ВМ
-
-
 ### Подключение по ssh
 #### Подключение с нестандартным ключем:
 `ssh -i <path_to_key> <username>@<host>`
@@ -42,7 +41,7 @@ ssh-keygen -t rsa -f ~/.ssh/dusachev -C dusachev -P ""
 #### Подключение через бастион-хост одной командой
 Принцип следующий: Мы подключаемся через proxycommand к бастиону (35.228.209.11), после чего, тот проксирует нас на целевой сервер someinternalhost (10.166.0.5). Ключ `-W %h:%p` означает, что стандартный ввод и вывод будут форвардится на хост `%h` и порт `%p`. Эти переменные будут зарезолвены указаным хостом для подключения и портом.
 
-```
+```shell
 ssh dusachev@10.166.0.5 -o "proxycommand ssh -W %h:%p -i ~/.ssh/dusachev dusachev@35.228.209.11"
 ```
 
@@ -58,6 +57,16 @@ Host someinternalhost
 
 ```
 
+Или в случае, если версия openssh > 7.4, то можно использовать директиву ProxyJump. В таком случае конфиг будет выглядеть так:
+
+```shell
+Host someinternalhost
+  Hostname 10.166.0.5
+  ForwardAgent yes
+  User dusachev
+  ProxyJump dusachev@35.228.209.11
+```
+
 Теперь, что бы подключиться через бастион-хост нужно выполнить:
 
 ``` shell
@@ -65,6 +74,10 @@ ssh someinternalhost
 ```
 
 ### Подключение через VPN
+
+bastion_IP = 35.228.209.11
+someinternalhost_IP = 10.166.0.5
+
 #### Установка и первоначальная настройка VPN-сервера
 Разрешим http/https трафик на машине bastion и установим vpn-server [Pritunl](https://pritunl.com/)
 
@@ -128,6 +141,26 @@ ssh -i ~/.ssh/dusachev dusachev@10.166.0.5
 ```
 
 ### Настройка сертификата для панели управления Pritunl (*)
+Используемые сервисы:
+- sslip.io
+- Lets Encrypt
+
+Для использования сервиса [sslip.io](https://sslip.io) достаточно обратиться к сервису с запросом по специальному dns-имени и он вернет в ответ ip-адрес. Работает это так: У нас есть внешний сервис на ip 35.228.209.11. Мы в браузере набираем 35-228-209-11.sslip.io и попадаем на веб-интерфейс нашего сервиса.
+
+Для использования Lets Encrypt необходимо зайти в веб-интерфейс pritunl используя домен от sslip.io. Далее перейти в настройки и в поле Lets Encrypt Domain ввести адрес домена sslip.io.
+После сохранения настроек страница обновится и подцепится валидный ssl-сертификат от Lets Encrypt
+
+p.s. Возможно потребуется дополнительная установка certbot, который генерит сертификаты. Делается это следующим образом:
+
+```shell
+    sudo apt-get update
+    sudo apt-get install software-properties-common
+    sudo add-apt-repository universe
+    sudo add-apt-repository ppa:certbot/certbot
+    sudo apt-get update
+
+    sudo apt-get install certbot 
+```
 
 
 ----
