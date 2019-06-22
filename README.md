@@ -75,10 +75,8 @@ ssh someinternalhost
 
 ### Подключение через VPN
 
-bastion_IP
-35.228.209.11
-someinternalhost_IP
-10.166.0.5
+bastion_IP = 35.228.209.11
+someinternalhost_IP = 10.166.0.5
 
 #### Установка и первоначальная настройка VPN-сервера
 Разрешим http/https трафик на машине bastion и установим vpn-server [Pritunl](https://pritunl.com/)
