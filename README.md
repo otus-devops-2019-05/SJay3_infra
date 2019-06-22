@@ -24,7 +24,7 @@ SJay3 Infra repository
 #### для Linux
 Генерируем ключ для пользователя *dusachev*
 
-```
+```shell
 ssh-keygen -t rsa -f ~/.ssh/dusachev -C dusachev -P ""
 ```
 #### добавление ключей в GCP
