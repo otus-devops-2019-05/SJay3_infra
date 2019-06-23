@@ -1,6 +1,108 @@
 # SJay3_infra
 SJay3 Infra repository
 
+## Homework 4 (cloud-app)
+В данном домашнем задании было сделано:
+- Установка gcloud
+- Установка тестового приложения с настройкой инфраструктуры
+- Создание bash-скриптов для установки приложения и настройки инфраструктуры
+- Создание startup script
+- Создание правила фаервола с помощью gcloud
+
+
+### Ревизиты для проверки
+
+    testapp_IP = 35.228.222.184
+    testapp_port = 9292
+
+### Установка gcloud
+[Инструкция по установке](https://cloud.google.com/sdk/docs/#deb)
+
+### Создание ВМ через gcloud
+
+```shell
+gcloud compute instances create reddit-app\
+  --boot-disk-size=10GB \
+  --image-family ubuntu-1604-lts \
+  --image-project=ubuntu-os-cloud \
+  --machine-type=g1-small \
+  --tags puma-server \
+  --restart-on-failure
+```
+
+### Деплой приложения
+Выполняем на машине reddit-app
+#### Установка ruby
+
+```shell
+sudo apt update
+sudo apt install -y ruby-full ruby-bundler build-essential
+```
+
+Проверка ruby и bundler
+
+```shell
+ruby -v
+bundler -v
+```
+
+#### Установка mongoDB
+
+```shell
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+sudo bash -c 'echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" > /etc/apt/sources.list.d/mongodb-org-3.2.list'
+sudo apt update
+sudo apt install -y mongodb-org
+```
+
+Запускаем монгу и добавляем в автозагрузку
+
+```shell
+sudo systemctl start mongod
+sudo systemctl enable mongod
+```
+
+#### Установка приложения
+
+В домашней директории пользователя на машине reddit-app выполним:
+
+```shell
+git clone -b monolith https://github.com/express42/reddit.git
+cd reddit && bundle install
+```
+
+Запускаем проект и проверяем, что он работает:
+
+```shell
+puma -d
+ps aux | grep puma
+```
+
+### Создание startup script (*)
+Необходимо закоммитить скрипт startup_script.sh в репозиторий, после чего воспользоваться параметром `--metadata startup-script-url` для скачивания и выполнения скрипта.
+Этот скрипт всегда будет выполняться от пользователя **root**
+
+Можно использовать параметр `--metadata startup-script`, но тогда придется указывать весь скрипт в командной строке. Это подходит только для небольших скриптов.
+
+```shell
+gcloud compute instances create reddit-app\
+  --boot-disk-size=10GB \
+  --image-family ubuntu-1604-lts \
+  --image-project=ubuntu-os-cloud \
+  --machine-type=g1-small \
+  --tags puma-server \
+  --restart-on-failure \
+  --metadata startup-script-url='https://raw.githubusercontent.com/otus-devops-2019-05/SJay3_infra/cloud-testapp/startup_script.sh'
+```
+
+### Создание правила фаервола с помощью gcloud (*)
+
+```shell
+gcloud compute firewall-rules create default-puma-server --allow tcp:9292 --direction INGRESS --source-ranges="0.0.0.0/0" --target-tags puma-server
+```
+
+
+----
 ## Homework 3 (cloud-bastion)
 В данном домашнем задании было сделано:
 - Создание учетной записи в GCP
