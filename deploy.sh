@@ -3,13 +3,11 @@
 appdir="reddit"
 echo "This script run as user $USER"
 cd ~
-echo `pwd`
 echo "Check repo for reddit-app"
 if [ -d $appdir ]
 then
   echo "Directory $appdir exist! Check repo"
   cd $appdir
-  echo `pwd`
   git status
   git branch
 else

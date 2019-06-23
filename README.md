@@ -12,7 +12,7 @@ SJay3 Infra repository
 
 ### Ревизиты для проверки
 
-    testapp_IP = 35.228.209.11
+    testapp_IP = 35.228.222.184
     testapp_port = 9292
 
 ### Установка gcloud
@@ -79,6 +79,10 @@ ps aux | grep puma
 ```
 
 ### Создание startup script (*)
+Необходимо закоммитить скрипт startup_script.sh в репозиторий, после чего воспользоваться параметром `--metadata startup-script-url` для скачивания и выполнения скрипта.
+Этот скрипт всегда будет выполняться от пользователя **root**
+
+Можно использовать параметр `--metadata startup-script`, но тогда придется указывать весь скрипт в командной строке. Это подходит только для небольших скриптов.
 
 ```shell
 gcloud compute instances create reddit-app\
@@ -88,7 +92,7 @@ gcloud compute instances create reddit-app\
   --machine-type=g1-small \
   --tags puma-server \
   --restart-on-failure \
-  --metadata startup-script-url='https://github.com/otus-devops-2019-05/SJay3_infra/blob/cloud-testapp/startup_script.sh'
+  --metadata startup-script-url='https://raw.githubusercontent.com/otus-devops-2019-05/SJay3_infra/cloud-testapp/startup_script.sh'
 ```
 
 ### Создание правила фаервола с помощью gcloud (*)
