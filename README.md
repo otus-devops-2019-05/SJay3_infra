@@ -6,6 +6,7 @@ SJay3 Infra repository
 - Установка gcloud
 - Установка тестового приложения с настройкой инфраструктуры
 - Создание bash-скриптов для установки приложения и настройки инфраструктуры
+- Создание правила фаервола с помощью gcloud
 
 
 ### Ревизиты для проверки
@@ -76,7 +77,14 @@ puma -d
 ps aux | grep puma
 ```
 
+### Создание startup script (*)
 
+
+### Создание правила фаервола с помощью gcloud (*)
+
+```shell
+gcloud compute firewall-rules create default-puma-server --allow tcp:9292 --direction INGRESS --source-ranges="0.0.0.0/0" --target-tags puma-server
+```
 
 ----
 ## Homework 3 (cloud-bastion)
