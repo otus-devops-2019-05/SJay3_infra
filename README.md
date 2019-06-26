@@ -1,6 +1,11 @@
 # SJay3_infra
 SJay3 Infra repository
 
+## Homework 5 (packer-base)
+В данном домашнем задании было сделано:
+
+
+
 ## Homework 4 (cloud-app)
 В данном домашнем задании было сделано:
 - Установка gcloud
