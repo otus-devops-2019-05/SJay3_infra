@@ -4,9 +4,10 @@
         "ssh_username": "appuser",
         "preemptible": "false",
         "tags": "",
-        "address": "",
+        "network": "default",
+	"subnetwork": "default",
         "disk_type": "",
-        "disk_size": "",
+        "disk_size": "10",
         "image_description": ""
     },
     "builders": [
@@ -22,7 +23,8 @@
             "machine_type": "{{user `machine_type`}}",
             "disk_type": "{{user `disk_type`}}",
             "disk_size": "{{user `disk_size`}}",
-            "address": "{{user `address`}}",
+            "network": "{{user `network`}}",
+	    "subnetwork": "{{user `subnetwork`}}",
             "preemptible": "{{user `preemptible`}}",
             "tags": "{{user `tags`}}"
         }
