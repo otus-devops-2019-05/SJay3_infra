@@ -3,6 +3,21 @@ SJay3 Infra repository
 
 ## Homework 5 (packer-base)
 В данном домашнем задании было сделано:
+- Установка packer
+
+### Установка packer
+Для установки packer, необходимо скачать дистрибутив по [ссылке](https://www.packer.io/downloads.html), распаковать архив в папку `~/packer/`.
+Далее, необходимо добавить путь к утилите packer в PATH. В `~/.bashrc` необходимо добавить строку в конец файла:
+
+```shell
+export PATH=$PATH:~/packer/
+```
+
+Применим изменения, что бы не перелогиниваться с новой сессией:
+
+```shell
+source ~/.bashrc
+```
 
 
 
