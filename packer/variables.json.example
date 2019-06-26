@@ -1,0 +1,12 @@
+{
+	"project_id": "Required. Your project id",
+	"source_image_family": "Required. Source image family",
+	"machine_type": "The machine type. f1-micro by default",
+	"ssh_username": "Ssh username for temp vm. appuser by default",
+	"disk_type": "pd-standard or pd-ssd. Boot disk type. pd-standart by default",
+	"disk_size": "Boot disk size in GB. 10GB by default",
+	"image_description": "Description of your image",
+	"preemptible": "preamtible virtual machine. true or false. false by default",
+	"tags": "Assign network tags to apply firewall rules to VM instance",
+	"address": "The name of a pre-allocated static external IP address."
+}

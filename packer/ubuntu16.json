@@ -1,7 +1,10 @@
 {
     "variables": {
         "machine_type": "f1-micro",
-        "ssh_username": "appuser"
+        "ssh_username": "appuser",
+        "preemptible": "false",
+        "tags": "",
+        "address": ""
     },
     "builders": [
         {
@@ -9,10 +12,16 @@
             "project_id": "{{user `project_id`}}",
             "image_name": "reddit-base-{{timestamp}}",
             "image_family": "reddit-base",
+            "image_description": "{{user `image_description`}}",
             "source_image_family": "{{user `source_image_family`}}",
             "zone": "europe-west1-b",
             "ssh_username": "{{user `ssh_username`}}",
-            "machine_type": "{{user `machine_type`}}"
+            "machine_type": "{{user `machine_type`}}",
+            "disk_type": "{{user `disk_type`}}",
+            "disk_size": "{{user `disk_size`}}",
+            "address": "{{user `address`}}",
+            "preemptible": "{{user `preemptible`}}",
+            "tags": "{{user `tags`}}"
         }
     ],
     "provisioners": [
