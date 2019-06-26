@@ -4,7 +4,10 @@
         "ssh_username": "appuser",
         "preemptible": "false",
         "tags": "",
-        "address": ""
+        "address": "",
+        "disk_type": "",
+        "disk_size": "",
+        "image_description": ""
     },
     "builders": [
         {
