@@ -33,6 +33,20 @@
         {
             "type": "shell",
             "inline": ["pwd", "git clone -b monolith https://github.com/express42/reddit.git", "cd reddit && bundle install"]
+        },
+        {
+            "type": "file",
+            "source": "files/puma.service",
+            "destination": "/tmp/puma.service"
+        },
+        {
+            "type": "shell",
+            "inline": [
+                "mv /tmp/puma.service /etc/systemd/system/puma.service",
+                "systemctl daemon-reload",
+                "systemctl enable puma.service"
+            ],
+            "execute_command": "sudo {{.Path}}"
         }
     ]
 }
