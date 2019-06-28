@@ -1,6 +1,8 @@
 # SJay3_infra
 SJay3 Infra repository
 
+## Homework 6 (terraform-1)
+
 ## Homework 5 (packer-base)
 В данном домашнем задании было сделано:
 - Установка packer
