@@ -32,7 +32,7 @@
     "provisioners": [
         {
             "type": "shell",
-            "inline": ["pwd", "git clone -b monolith https://github.com/express42/reddit.git"]
+            "inline": ["pwd", "git clone -b monolith https://github.com/express42/reddit.git", "cd reddit && bundle install"]
         }
     ]
 }
