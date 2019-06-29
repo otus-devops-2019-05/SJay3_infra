@@ -35,6 +35,21 @@ resource "google_compute_instance" "app" {
     # Путь до публичного ключа
     ssh-keys = "appuser:${file("~/.ssh/appuser.pub")}"
   }
+  # Подключение провиженоров к ВМ
+  connection {
+    type = "ssh"
+    user = "appuser"
+    agent = false
+    # путь до приватного ключа
+    private_key = "${file("~/.ssh/appuser")}"
+  }
+  provisioner "file" {
+    source = "file/puma.service"
+    destination = "/tmp/puma.service"
+  }
+  provisioner "remote-exec" {
+    script = "files/deploy.sh"
+  }
 }
 
 resource "google_compute_firewall" "firewall_puma" {
