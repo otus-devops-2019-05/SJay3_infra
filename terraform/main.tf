@@ -44,7 +44,7 @@ resource "google_compute_instance" "app" {
     private_key = "${file("~/.ssh/appuser")}"
   }
   provisioner "file" {
-    source = "file/puma.service"
+    source = "files/puma.service"
     destination = "/tmp/puma.service"
   }
   provisioner "remote-exec" {
