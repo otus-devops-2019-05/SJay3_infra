@@ -84,3 +84,11 @@ resource "google_compute_project_metadata_item" "appuser1" {
   value = "appuser1:${file(var.public_key_path)}"
   project = "${var.project}"
 }
+
+resource "google_compute_project_metadata" "many_keys" {
+  project = "${var.project}"
+  metadata = {
+    ssh-keys = "appuser2:${file(var.public_key_path)}"
+    ssh-keys = "appuser3:${file(var.public_key_path)}"
+  }
+}
