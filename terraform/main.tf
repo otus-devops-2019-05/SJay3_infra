@@ -79,16 +79,16 @@ resource "google_compute_firewall" "firewall_puma" {
   target_tags = ["reddit-app"]
 }
 
-resource "google_compute_project_metadata_item" "appuser1" {
-  key = "ssh-keys"
-  value = "appuser1:${file(var.public_key_path)}"
-  project = "${var.project}"
-}
+# use this resource to add single ssh key or single key/value metadata. If you manage different keys, or different metadata use resource declare after that
+# resource "google_compute_project_metadata_item" "appuser1" {
+#   key = "ssh-keys"
+#   value = "appuser1:${file(var.public_key_path)}"
+#   project = "${var.project}"
+# }
 
 resource "google_compute_project_metadata" "many_keys" {
   project = "${var.project}"
   metadata = {
     ssh-keys = "appuser2:${file(var.public_key_path)} appuser3:${file(var.public_key_path)}"
-   # ssh-keys = "appuser3:${file(var.public_key_path)}"
   }
 }
