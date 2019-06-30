@@ -80,7 +80,7 @@ resource "google_compute_firewall" "firewall_puma" {
 }
 
 resource "google_compute_project_metadata_item" "appuser1" {
-  key = "appuser1"
-  value = "${file(var.public_key_path)}"
+  key = "ssh-keys"
+  value = "appuser1:${file(var.public_key_path)}"
   project = "${var.project}"
 }
