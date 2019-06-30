@@ -109,7 +109,17 @@ terraform destroy
 
 ### Работа с ssh-ключами и пользователями в terraform (*)
 
+Для добавления ssh-ключа в метадату проекта, необходимо использовать отдельный ресурс `google_compute_project_metadata_item`. Этот ресурс добавляет 1 единицу метаданных в проект. Но для того, что бы можно было добавиь ssh ключ, необходимо указать **ssh-keys** в качестве значения у параметра **key**.
 
+```
+resource "google_compute_project_metadata_item" "appuser1" {
+  key = "ssh-keys"
+  value = "appuser1:${file(var.public_key_path)}"
+  project = "${var.project}"
+}
+```
+
+Для добавления сразу нескольких метаданных или нескольких ssh ключей, необходимо использовать другой ресурс: `google_compute_project_metadata`.
 
 ----
 ## Homework 5 (packer-base)
