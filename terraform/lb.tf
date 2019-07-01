@@ -2,7 +2,7 @@
 # Create instanse group
 resource "google_compute_instance_group" "reddit-app" {
   name = "reddit-app"
-  description = "Reddip app instanse group"
+  description = "Reddit app instanse group"
   zone = "${var.zone}"
   instances = [ "${google_compute_instance.app.self_link}" ]
 
@@ -10,6 +10,9 @@ resource "google_compute_instance_group" "reddit-app" {
     name = "http"
     port = "9292"
   }
+#  lifecycle {
+#    create_before_destroy = true
+#  }
 }
 
 # Create backend for lb
@@ -46,7 +49,7 @@ resource "google_compute_target_http_proxy" "reddit-app" {
 }
 
 #Create forward rule to forward http to proxy
-resource "google_compute_global_forwarding_rule" "redit-forward" {
+resource "google_compute_global_forwarding_rule" "reddit-forward" {
   name = "reddit-lb"
   target = "${google_compute_target_http_proxy.reddit-app.self_link}"
   port_range = "80"
