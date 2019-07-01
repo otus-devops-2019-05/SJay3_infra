@@ -31,3 +31,16 @@ resource "google_compute_http_health_check" "reddit-health" {
   request_path = "/"
   port = "9292"
 }
+
+# create urlmap
+resource "google_compute_url_map" "reddit-urlmap" {
+  name = "reddit-urlmap"
+  description = "a URL map for reddit application"
+  default_service = "${google_compute_backend_service.reddit-app.self_link}"
+}
+
+#create target proxy to urlmap
+resource "google_compute_target_http_proxy" "reddit-app" {
+  name = "reddit-app-target-proxy"
+  url_map = "${google_compute_url_map.reddit-urlmap.self_link}"
+}
