@@ -16,7 +16,7 @@ provider "google" {
 resource "google_compute_instance" "app" {
   name         = "reddit-app"
   machine_type = "g1-small"
-  zone         = "europe-west1-b"
+  zone         = "${var.zone}"
   tags         = ["reddit-app"]
 
   # определение загрузочного диска
@@ -91,4 +91,11 @@ resource "google_compute_project_metadata" "many_keys" {
   metadata = {
     ssh-keys = "appuser2:${file(var.public_key_path)} \nappuser3:${file(var.public_key_path)}"
   }
+}
+
+# Create instanse group
+resource "google_compute_instance_group" "reddit-app" {
+  name = "reddit-app"
+  description = "Reddip app instanse group"
+  zone = "${var.zone}"
 }
