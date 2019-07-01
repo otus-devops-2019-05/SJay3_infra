@@ -14,7 +14,7 @@ resource "google_compute_instance_group" "reddit-app" {
 
 # Create backend for lb
 resource "google_compute_backend_service" "reddit-app" {
-  name = "reddit backend"
+  name = "reddit-backend"
   port_name = "http"
   protocol = "HTTP"
 
@@ -22,13 +22,11 @@ resource "google_compute_backend_service" "reddit-app" {
     group = "${google_compute_instance_group.reddit-app.self_link}"
   }
 
-  health_checks [
-    "${google_compute_https_health_check.reddit-health.self_link}"
-  ]
+  health_checks = [ "${google_compute_http_health_check.reddit-health.self_link}" ]
 }
 
 # add health check
-resource "google_compute_https_health_check" "reddit-health" {
+resource "google_compute_http_health_check" "reddit-health" {
   name = "reddit-health"
   request_path = "/"
   port = "9292"
