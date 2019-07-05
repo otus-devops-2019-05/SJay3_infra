@@ -37,7 +37,7 @@ resource "google_compute_http_health_check" "reddit-health" {
 
 # create urlmap. Name of urlmap will be shown in web-interface GCP
 resource "google_compute_url_map" "reddit-lb" {
-  name = "reddit-urlmap"
+  name = "reddit-lb"
   description = "a URL map for reddit application"
   default_service = "${google_compute_backend_service.reddit-app.self_link}"
 }
@@ -50,7 +50,7 @@ resource "google_compute_target_http_proxy" "reddit-app" {
 
 #Create forward rule to forward http to proxy
 resource "google_compute_global_forwarding_rule" "reddit-forward" {
-  name = "reddit-lb"
+  name = "reddit-forward"
   target = "${google_compute_target_http_proxy.reddit-app.self_link}"
   port_range = "80"
 }
