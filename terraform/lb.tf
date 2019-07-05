@@ -4,7 +4,7 @@ resource "google_compute_instance_group" "reddit-app" {
   name = "reddit-app"
   description = "Reddit app instanse group"
   zone = "${var.zone}"
-  instances = [ "${google_compute_instance.app.self_link.id}" ]
+  instances = [ "${google_compute_instance.app.*.self_link}" ]
 
   named_port {
     name = "http"
