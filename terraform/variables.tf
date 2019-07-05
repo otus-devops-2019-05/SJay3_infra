@@ -30,3 +30,9 @@ variable "disk_image" {
   type        = "string"
   description = "Disk image"
 }
+
+variable "count" {
+  type = "string"
+  description = "Count instances"
+  default = "1"
+}
