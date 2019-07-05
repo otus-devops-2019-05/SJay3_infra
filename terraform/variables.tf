@@ -31,7 +31,7 @@ variable "disk_image" {
   description = "Disk image"
 }
 
-variable "count" {
+variable "instance_count" {
   type = "string"
   description = "Count instances"
   default = "1"
