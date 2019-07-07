@@ -1,9 +1,11 @@
 # SJay3_infra
 SJay3 Infra repository
+
 ## Homework 7 (terraform-2)
 В данном домашнем задании было сделано:
 - Импорт существующего правила firewall
 - Структуризация ресурсов
+- Созданием модулей
 
 ### Импорт существующего правила firewall
 По заданию, мы должны создать правило для фаервола, разрешающее подключение по ssh. Но в GCP оно уже создано по умолчанию. Однако, что бы мы могли управлять этим правилось через terraform, его нужно описать в main.tf, после чего выполнить импорт, что бы терраформ знал, что такое правило уже существует в GCP
@@ -36,6 +38,43 @@ packer build -var-file=variables.json db.json
 terraform plan
 terraform apply
 ```
+
+### Создание модулей
+Перед тем, как создавать модули, уничтожим текущую инфраструктуру:
+
+```shell
+terraform destroy
+```
+
+В дирректории terraform создадим папку modules. Создадим модуль для базы данных и для приложения.
+
+#### Модуль для базы
+Создадим папку db внутри папки modules. Внутри создадим 3 файла: main.tf, variables.tf и outputs.tf. В файл main.tf скопируем содержимое ранее созданного файла db.tf. В файле variables.tf опишем используемые переменные для модуля с базой: `public_key_path`, `zone` и `db_disk_image`
+
+#### Модель для приложения
+По аналогии с базой, создадим папку app внутри директории modules с 3-мя файлами main.tf, variables.tf и outputs.tf. В файл main.tf скопируем содержимое из файла app.tf. В файле variables.tf опишем используемые переменные для приложения: `public_key_path`, `zone`, `app_disk_image` и `instance_count`
+
+#### Использование модулей
+Перед тем, как использовать модули, необходимо удалить из папки terraform ранее созданные файлы db.tf и app.tf, а в файле main.tf прописать использование модулей:
+
+```
+module "app" {
+  source = "modules/app"
+  public_key_path = "${var.public_key_path}"
+  zone = "${var.zone}"
+  app_disk_image = "${var.app_disk_image}"
+  instance_count = "${var.instance_count}"
+}
+
+module "db" {
+  source = "modules/db"
+  public_key_path = "${var.public_key_path}"
+  zone = "${var.zone}"
+  db_disk_image = "${var.db_disk_image}"
+}
+```
+
+
 
 ----
 ## Homework 6 (terraform-1)
