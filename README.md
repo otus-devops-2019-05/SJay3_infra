@@ -12,6 +12,9 @@ SJay3 Infra repository
 terraform import google_compute_firewall.firewall_ssh default-allow-ssh
 ```
 
+### Структуризация ресурсов
+Вынесем БД на отдельный инстанс ВМ. Для этого, для начала создадим 2 разных образа с помощью packer: db.json и app.json.
+
 
 ----
 ## Homework 6 (terraform-1)
