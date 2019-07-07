@@ -33,7 +33,9 @@ resource "google_compute_instance" "app" {
     network = "default"
 
     # использовать ephemeral IP для доступа из Интернет
-    access_config {}
+    access_config {
+      nat_ip = "${google_compute_address.app_ip.address}"
+    }
   }
 
   metadata {
