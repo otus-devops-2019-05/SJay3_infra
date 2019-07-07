@@ -10,4 +10,5 @@ resource "google_compute_firewall" "firewall_ssh" {
   }
 
   source_ranges = ["0.0.0.0/0"]
+
 }
