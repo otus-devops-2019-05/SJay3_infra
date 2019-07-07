@@ -26,9 +26,16 @@ variable "privat_key_path" {
   description = "Path to privat key used for provisioner connection"
 }
 
-variable "disk_image" {
-  type        = "string"
-  description = "Disk image"
+variable "app_disk_image" {
+  type = "string"
+  description = "Reddit-app disk image"
+  default = "reddit-app-base"
+}
+
+variable "db_disk_image" {
+  type = "string"
+  description = "Reddit-db disk image"
+  default = "reddit-db-base"
 }
 
 variable "instance_count" {
