@@ -107,3 +107,7 @@ resource "google_compute_project_metadata" "many_keys" {
   }
 }
 
+resource "google_compute_address" "app_ip" {
+  name = "reddit-app-ip"
+}
+
