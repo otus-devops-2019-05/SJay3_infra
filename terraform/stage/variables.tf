@@ -43,3 +43,9 @@ variable "instance_count" {
   description = "Count instances"
   default = "1"
 }
+
+variable "source_ranges" {
+  type = "list"
+  description = "Source ranges for ssh firewall rule"
+  default = ["0.0.0.0/0"]
+}
