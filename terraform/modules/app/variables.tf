@@ -20,3 +20,9 @@ variable "instance_count" {
   description = "Count instances"
   default     = "1"
 }
+
+variable "db_hostname" {
+  type = "string"
+  description = "IP or hostname of mongodb"
+  default = "0.0.0.0"
+}

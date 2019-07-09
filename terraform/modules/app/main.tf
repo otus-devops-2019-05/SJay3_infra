@@ -31,23 +31,23 @@ resource "google_compute_instance" "app" {
   }
 
   # Подключение провиженоров к ВМ
-  #  connection {
-  #    type  = "ssh"
-  #    user  = "appuser"
-  #    agent = false
+   connection {
+     type  = "ssh"
+     user  = "appuser"
+     agent = false
 
   # путь до приватного ключа
-  #    private_key = "${file("~/.ssh/appuser")}"
-  #  }
+     private_key = "${file("~/.ssh/appuser")}"
+   }
 
-  #  provisioner "file" {
-  #    source      = "files/puma.service"
-  #    destination = "/tmp/puma.service"
-  #  }
+   provisioner "file" {
+     source      = "files/puma.service"
+     destination = "/tmp/puma.service"
+   }
 
-  #  provisioner "remote-exec" {
-  #    script = "files/deploy.sh"
-  #  }
+   provisioner "remote-exec" {
+     script = "files/deploy.sh"
+   }
 }
 
 resource "google_compute_address" "app_ip" {
