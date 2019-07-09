@@ -1,22 +1,22 @@
 #app variables
 variable "public_key_path" {
-  type = "string"
+  type        = "string"
   description = "Path to the public key used to connect to instance"
 }
 
 variable "zone" {
-  type = "string"
+  type        = "string"
   description = "Zone"
 }
 
 variable "app_disk_image" {
-  type = "string"
+  type        = "string"
   description = "Disk image for reddit app"
-  default = "reddit-app-base"
+  default     = "reddit-app-base"
 }
 
 variable "instance_count" {
-  type = "string"
+  type        = "string"
   description = "Count instances"
-  default = "1"
+  default     = "1"
 }
