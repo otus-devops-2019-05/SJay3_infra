@@ -1,6 +1,6 @@
 #prod terraform backend
 terraform {
-  backend "prod" {
+  backend "gcs" {
     bucket = "sjay3-terraform-prod"
     prefix = "reddit-prod"
   }
