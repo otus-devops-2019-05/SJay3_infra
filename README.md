@@ -91,7 +91,11 @@ module "db" {
 
 ### Работа с реестром модулей
 Модули можно брать из [реестра терраформа](https://registry.terraform.io/).
-Воспользуемся модулем [storage-bucket](https://registry.terraform.io/modules/SweetOps/storage-bucket/google/0.2.0) для создания бакетов в GCP.
+Воспользуемся модулем [storage-bucket](https://registry.terraform.io/modules/SweetOps/storage-bucket/google/0.2.0) для создания бакетов в GCP. Создадим файл storage-bucket.tf в котром опишем провайдера и используемый модуль. Так же создадим файл variables.tf в котором опишем переменные для проекта и региона, а в файле terravorm.tfvars зададим значения для этих переменных.
+
+Важно! Имена бакетов должны быть уникальны в пределах региона!
+
+
 
 
 ----
