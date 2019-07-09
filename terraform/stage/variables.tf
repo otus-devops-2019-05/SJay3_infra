@@ -27,25 +27,25 @@ variable "privat_key_path" {
 }
 
 variable "app_disk_image" {
-  type = "string"
+  type        = "string"
   description = "Reddit-app disk image"
-  default = "reddit-app-base"
+  default     = "reddit-app-base"
 }
 
 variable "db_disk_image" {
-  type = "string"
+  type        = "string"
   description = "Reddit-db disk image"
-  default = "reddit-db-base"
+  default     = "reddit-db-base"
 }
 
 variable "instance_count" {
-  type = "string"
+  type        = "string"
   description = "Count instances"
-  default = "1"
+  default     = "1"
 }
 
 variable "source_ranges" {
-  type = "list"
+  type        = "list"
   description = "Source ranges for ssh firewall rule"
-  default = ["0.0.0.0/0"]
+  default     = ["0.0.0.0/0"]
 }
