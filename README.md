@@ -90,6 +90,8 @@ module "db" {
 Удалим файлы main.tf, variables.tf, outputs.tf и terraform.tfvars из корневой папки terraform, т.к. они больше не нужны.
 
 ### Работа с реестром модулей
+Модули можно брать из [реестра терраформа](https://registry.terraform.io/).
+Воспользуемся модулем [storage-bucket](https://registry.terraform.io/modules/SweetOps/storage-bucket/google/0.2.0) для создания бакетов в GCP.
 
 
 ----
