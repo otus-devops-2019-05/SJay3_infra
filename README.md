@@ -98,6 +98,21 @@ module "db" {
 
 ### Хранение стейт-файлов в удаленном бекэнде (*)
 
+С помощью конфигурации storage-bucket создадим 2 бакета для stage и prod
+Создадим файлы backend.tf для stage и prod, где опишем конфигурации бекэндов:
+
+```
+#stage terraform backend
+terraform {
+  backend "stage" {
+    bucket = "sjay3-terraform-stage"
+    prefix = "reddit-stage"
+  }
+}
+
+```
+
+Командой `terraform init` инициализзируем бекенды и проверим, что файлы tfstate перенеслись в бакеты.
 
 
 ----
