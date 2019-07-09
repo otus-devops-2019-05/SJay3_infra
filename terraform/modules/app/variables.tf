@@ -24,5 +24,5 @@ variable "instance_count" {
 variable "db_hostname" {
   type = "string"
   description = "IP or hostname of mongodb"
-  default = "0.0.0.0"
+  default = "localhost"
 }

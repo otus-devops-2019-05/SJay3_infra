@@ -20,6 +20,9 @@ module "app" {
   zone            = "${var.zone}"
   app_disk_image  = "${var.app_disk_image}"
   instance_count  = "${var.instance_count}"
+  db_hostname = "${module.db.db_external_ip}"
+
+  depends_on = ["module.db"]
 }
 
 module "db" {
