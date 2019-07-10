@@ -1,4 +1,10 @@
 #app
+data "template_file" "puma_service" {
+  template = "${file(path.module"/files/puma.service")}"
+  vars = {
+    db_hostname = "${var.db_hostname}"
+  }
+}
 
 resource "google_compute_instance" "app" {
   name         = "reddit-app-${count.index + 1}"
@@ -41,7 +47,7 @@ resource "google_compute_instance" "app" {
   }
 
   provisioner "file" {
-    source      = "${path.module}/files/puma.service"
+    source      = "${data.template_file.puma_service}"
     destination = "/tmp/puma.service"
   }
 
