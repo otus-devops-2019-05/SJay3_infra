@@ -36,7 +36,7 @@ resource "google_compute_instance" "db" {
   }
 
   provisioner "remote-exec" {
-    inline = ["sudo mv /tmp/mongod.conf /etc/mongod.conf", "sudo systemctl reload mongod.service"]
+    inline = ["sudo mv /tmp/mongod.conf /etc/mongod.conf", "sudo systemctl restart mongod.service"]
   }
 }
 
