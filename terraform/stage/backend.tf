@@ -1,6 +1,6 @@
 #stage terraform backend
 terraform {
-  backend "stage" {
+  backend "gcs" {
     bucket = "sjay3-terraform-stage"
     prefix = "reddit-stage"
   }
