@@ -1,6 +1,6 @@
 #app
 data "template_file" "puma_service" {
-  template = "${file(path.module"/files/puma.service")}"
+  template = "${file("${path.module}/files/puma.service")}"
   vars = {
     db_hostname = "${var.db_hostname}"
   }
@@ -47,7 +47,7 @@ resource "google_compute_instance" "app" {
   }
 
   provisioner "file" {
-    source      = "${data.template_file.puma_service}"
+    content      = "${data.template_file.puma_service.rendered}"
     destination = "/tmp/puma.service"
   }
 
