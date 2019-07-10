@@ -19,6 +19,25 @@ resource "google_compute_instance" "db" {
   metadata {
     ssh-keys = "appuser:${file(var.public_key_path)}"
   }
+
+    # Подключение провиженоров к ВМ
+  connection {
+    type  = "ssh"
+    user  = "appuser"
+    agent = false
+
+  # путь до приватного ключа
+    private_key = "${file("~/.ssh/appuser")}"
+  }
+
+  provisioner "file" {
+    source = "${path.module}/files/mongod.conf"
+    destination = "/tmp/mongod.conf"
+  }
+
+  provisioner "remote-exec" {
+    inline = ["sudo mv /tmp/mongod.conf /etc/mongod.conf", "sudo systemctl reload mongod.service"]
+  }
 }
 
 resource "google_compute_firewall" "firewall_mongo" {
