@@ -1,16 +1,9 @@
-terraform {
-  # версия terraform
-  required_version = "~> 0.11.7"
-}
-
-provider "google" {
-  # Версия провайдера
-  version = "2.0.0"
-
-  # id проекта
-  project = "${var.project}"
-
-  region = "${var.region}"
+#app
+data "template_file" "puma_service" {
+  template = "${file("${path.module}/files/puma.service")}"
+  vars = {
+    db_hostname = "${var.db_hostname}"
+  }
 }
 
 resource "google_compute_instance" "app" {
@@ -18,12 +11,12 @@ resource "google_compute_instance" "app" {
   machine_type = "g1-small"
   zone         = "${var.zone}"
   tags         = ["reddit-app"]
-  count = "${var.instance_count}"
+  count        = "${var.instance_count}"
 
   # определение загрузочного диска
   boot_disk {
     initialize_params {
-      image = "${var.disk_image}"
+      image = "${var.app_disk_image}"
     }
   }
 
@@ -33,7 +26,9 @@ resource "google_compute_instance" "app" {
     network = "default"
 
     # использовать ephemeral IP для доступа из Интернет
-    access_config {}
+    access_config {
+      nat_ip = "${google_compute_address.app_ip.address}"
+    }
   }
 
   metadata {
@@ -47,18 +42,22 @@ resource "google_compute_instance" "app" {
     user  = "appuser"
     agent = false
 
-    # путь до приватного ключа
+  # путь до приватного ключа
     private_key = "${file("~/.ssh/appuser")}"
   }
 
   provisioner "file" {
-    source      = "files/puma.service"
+    content      = "${data.template_file.puma_service.rendered}"
     destination = "/tmp/puma.service"
   }
 
   provisioner "remote-exec" {
-    script = "files/deploy.sh"
+    script = "${path.module}/files/deploy.sh"
   }
+}
+
+resource "google_compute_address" "app_ip" {
+  name = "reddit-app-ip"
 }
 
 resource "google_compute_firewall" "firewall_puma" {
@@ -79,18 +78,3 @@ resource "google_compute_firewall" "firewall_puma" {
   # Правило применения для инстансов с перечисленными тегами
   target_tags = ["reddit-app"]
 }
-
-# use this resource to add single ssh key or single key/value metadata. If you manage different keys, or different metadata use resource declare after that
-# resource "google_compute_project_metadata_item" "appuser1" {
-#   key = "ssh-keys"
-#   value = "appuser1:${file(var.public_key_path)}"
-#   project = "${var.project}"
-# }
-
-resource "google_compute_project_metadata" "many_keys" {
-  project = "${var.project}"
-  metadata = {
-    ssh-keys = "appuser2:${file(var.public_key_path)} \nappuser3:${file(var.public_key_path)}"
-  }
-}
-
