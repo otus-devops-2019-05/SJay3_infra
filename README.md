@@ -120,7 +120,70 @@ terraform {
 
 ### Добавление provisioner в модули приложения (**)
 
+Для того, что бы связать 2 инстанса app и db, первым делом, необходимо, что бы база данных mongo могла принимать подключения не только с локалхоста. Для этого, в модуле db создадим папку files, куда скопируем файл с параметрами монги, находящийся в `/etc/mongod.conf`. В нем найдем параметр `bindIp` и заменим значением в нем на 0.0.0.0.
+Теперь в main.tf модуля db добавим провиженеры:
 
+Для копирования файла с параметрами во временную директорию:
+
+```
+  provisioner "file" {
+    source = "${path.module}/files/mongod.conf"
+    destination = "/tmp/mongod.conf"
+  }
+```
+
+Для перемещения конфига в целевое местоположение и рестарта базы:
+
+```
+  provisioner "remote-exec" {
+    inline = ["sudo mv /tmp/mongod.conf /etc/mongod.conf", "sudo systemctl restart mongod.service"]
+  }
+}
+```
+
+Так же, в outputs.tf добавим новую переменную, для захвата внутреннего ip адреса машины с базой:
+
+```
+output "db_internal_ip" {
+  value = "${google_compute_instance.db.network_interface.0.network_ip}"
+}
+```
+
+Теперь займемся настройкой модуля app, для деплоя приложения и связи его с БД. Для начала добавим новую переменную, `db_hostname` со значением по умолчанию localhost. Далее подготовим файлы для депроя и управления приложением через systemd: deploy.sh и puma.service. Поскольку подключение приложения к БД осуществляется при запуске через переменную окружения `DATABASE_URL` добавим в файл puma.service в секцию `[service]` следующую строку:
+
+```
+Environment=DATABASE_URL=${db_hostname}
+```
+ 
+Поскольку файл у нас содержит переменную, необходимо содержимое файла зарендерить перед тем, как передавать на сервер. Для этого используем специального провайдера `template_file`, который определяется с помощью data source:
+
+```
+data "template_file" "puma_service" {
+  template = "${file("${path.module}/files/puma.service")}"
+  vars = {
+    db_hostname = "${var.db_hostname}"
+  }
+}
+```
+
+Теперь займемся провиженерами. Сначала скопируем зарендеренный файл на ВМ:
+
+```
+  provisioner "file" {
+    content      = "${data.template_file.puma_service.rendered}"
+    destination = "/tmp/puma.service"
+  }
+```
+
+После чего выполним провиженер, который запускает скрипт deploy.sh
+
+В проектах stage и prod изменим main.tf добавив в подключение модуля app новое значение перемменной:
+
+```
+db_hostname = "${module.db.db_internal_ip}"
+```
+
+Так же, можно добавить в outputs вывод этой переменной.
 
 ----
 ## Homework 6 (terraform-1)
