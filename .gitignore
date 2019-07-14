@@ -5,3 +5,5 @@ packer/immu_vars.json
 *.tfstate.backup
 *.tfvars
 .terraform/
+infra.sublime-workspace
+infra.sublime-project
