@@ -3,6 +3,36 @@ SJay3 Infra repository
 
 ## Homework 8 (ansible-1)
 В данном домашнем задании было сделано:
+- Установка Ansible
+
+### Установка Ansible (для ubuntu 16 и 18)
+Подходит для установки на WSL
+Для начала необходимо установить python 2.7
+
+```shell
+sudo apt update
+sudo apt install python
+```
+
+Ansible можно устатновить через пакетный менеджер ОС (apt) или пакетный менеджер питона (pip)
+[Официальный мануал по установке](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+
+#### Установка через apt
+
+```shell
+$ sudo apt update
+$ sudo apt install software-properties-common
+$ sudo apt-add-repository --yes --update ppa:ansible/ansible
+$ sudo apt install ansible
+```
+
+#### Установка через pip
+
+```shell
+sudo apt update
+sudo apt install python-pip
+pip install --user ansible
+```
 
 
 
