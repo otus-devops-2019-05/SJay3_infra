@@ -1,6 +1,12 @@
 # SJay3_infra
 SJay3 Infra repository
 
+## Homework 8 (ansible-1)
+В данном домашнем задании было сделано:
+
+
+
+----
 ## Homework 7 (terraform-2)
 В данном домашнем задании было сделано:
 - Импорт существующего правила firewall
