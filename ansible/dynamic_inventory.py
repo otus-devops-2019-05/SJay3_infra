@@ -9,7 +9,13 @@ import sys
 import argparse
 import re
 import warnings
-from google.cloud import storage
+
+try:
+	from google.cloud import storage
+except ImportError:
+	import pip
+	pip.main(['install', 'google-cloud-storage', '-q'])
+	from google.cloud import storage
 
 try:
     import json
