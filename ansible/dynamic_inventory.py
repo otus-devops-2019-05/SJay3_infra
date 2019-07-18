@@ -13,9 +13,13 @@ import warnings
 try:
 	from google.cloud import storage
 except ImportError:
-	import pip
-	pip.main(['install', 'google-cloud-storage', '-q'])
-	from google.cloud import storage
+	print("Import Error. You need to install google-cloud-storage module")
+	# import pip
+	# # import subprocess
+	# # process = subprocess.Popen(["pip", "install", "google-cloud-storage", "-q"], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	# # process.wait()
+	# pip.main(['install', 'google-cloud-storage'])
+	# from google.cloud import storage
 
 try:
     import json
