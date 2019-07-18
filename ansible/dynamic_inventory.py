@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
 ''' dynamic inventory script
-You need to install google-api-python-client and google-cloud-storage
-pip install --upgrade google-api-python-client
+You need to install google-cloud-storage
 pip install google-cloud-storage
 '''
 import os
@@ -10,7 +9,6 @@ import sys
 import argparse
 import re
 import warnings
-import googleapiclient.discovery
 from google.cloud import storage
 
 try:
