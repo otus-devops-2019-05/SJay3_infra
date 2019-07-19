@@ -1,6 +1,14 @@
 # SJay3_infra
 SJay3 Infra repository
 
+[TOC]
+
+## Homework 9 (ansible-2)
+В данном домашнем задании было сделано:
+-
+
+
+
 ## Homework 8 (ansible-1)
 В данном домашнем задании было сделано:
 - Установка Ansible
