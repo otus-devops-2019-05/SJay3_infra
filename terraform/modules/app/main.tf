@@ -31,10 +31,10 @@ resource "google_compute_instance" "app" {
     }
   }
 
-  # metadata {
-  #   # Путь до публичного ключа
-  #   ssh-keys = "appuser:${file(var.public_key_path)}"
-  # }
+  metadata {
+    # Путь до публичного ключа
+    ssh-keys = "appuser:${file(var.public_key_path)}"
+  }
 
   # # Подключение провиженоров к ВМ
   # connection {
