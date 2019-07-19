@@ -7,4 +7,4 @@ packer/immu_vars.json
 .terraform/
 infra.sublime-workspace
 infra.sublime-project
-ansible/inventory_test.json
+*.retry
