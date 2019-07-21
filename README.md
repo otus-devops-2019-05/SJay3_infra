@@ -84,7 +84,7 @@ ansible-playbook site.yml
 ```
 
 ### Использование готовых Dynamic Inventory (*)
-Для генерации динамического инвентори будем использовать встроенный в ансибл плагин `gce_compute` (вместо gce.py).
+Для генерации динамического инвентори будем использовать встроенный в ансибл плагин `gce_compute` (вместо gce.py). [Подробней](https://docs.ansible.com/ansible/latest/scenario_guides/guide_gce.html)
 
 Полный список инвентори плагинов можно посмотреть командой:
 
@@ -102,6 +102,23 @@ pip install google-auth
 
 #### Сервисный аккаунт google
 Далее необходимо сгенерировать и скачать json с реквизитами специального сервисного аккаунта. [ссылка](https://cloud.google.com/iam/docs/creating-managing-service-account-keys)
+
+Через меню IAM&admin -> Service accounts создадим сервисный акканут ansible с ролью Compute Viewer.
+Далее с помощью утилиты gcloud создадим ключ сервисного аккаунта, который сразу же сохраним в файле `ansible_gcp_key.json`:
+
+```shell
+gcloud iam service-accounts keys create ~/ansible_gcp_key.json --iam-account ansible@infra-244211.iam.gserviceaccount.com
+```
+
+#### Подключение плагина
+Для начала в `ansible.cfg` включим плагин:
+
+```
+[inventory]
+enable_plagins = gcp_compute
+```
+
+Далее создадим файл, оканчивающийся на .gcp.yml (inventory.gcp.yml) и путь к этому файлу так же пропишем в `ansible.cfg`
 
 
 
