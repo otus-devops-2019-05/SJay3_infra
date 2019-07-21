@@ -120,6 +120,25 @@ enable_plagins = gcp_compute
 
 Далее создадим файл, оканчивающийся на .gcp.yml (inventory.gcp.yml) и путь к этому файлу так же пропишем в `ansible.cfg`
 
+Минимальное содержание файла inventory.gcp.yml:
+
+```yaml
+plugin: gcp_compute
+projects:
+  - infra-244211
+regions:
+  - europe-west1
+filters: []
+auth_kind: serviceaccount
+service_account_file: ~/ansible_gcp_key.json
+```
+
+Для проверки, что плагин работает используем команду:
+
+```shell
+ansible-inventory --graph
+```
+
 
 
 ----
