@@ -84,6 +84,25 @@ ansible-playbook site.yml
 ```
 
 ### Использование готовых Dynamic Inventory (*)
+Для генерации динамического инвентори будем использовать встроенный в ансибл плагин `gce_compute` (вместо gce.py).
+
+Полный список инвентори плагинов можно посмотреть командой:
+
+```shell
+ansible-doc -t inventory -l
+```
+
+#### Подготовка
+Для использования плагина, необходимо для начала установить библиотеки питона:
+
+```shell
+pip install requests
+pip install google-auth
+```
+
+#### Сервисный аккаунт google
+Далее необходимо сгенерировать и скачать json с реквизитами специального сервисного аккаунта. [ссылка](https://cloud.google.com/iam/docs/creating-managing-service-account-keys)
+
 
 
 ----
