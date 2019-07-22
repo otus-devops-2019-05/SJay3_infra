@@ -149,7 +149,31 @@ groups:
 ```
 
 ### Провижининг в Packer
+Создадим 2 плейбука: 
+- packer_app.yml
+- packer_db.yml
 
+В первом опишем установку ruby и bundler с использованием модуля apt. Во втором опишем установку mongodb используя модули apt, apt_key, apt_repository и systemd
+
+Добавим использование ansible в провиженеры пакера в шаблонах app.json и db.json
+
+```
+    "provisioners": [
+        {
+            "type": "ansible",
+            "playbook_file": "ansible/packer_app.yml"
+        }
+    ]
+```
+
+```
+    "provisioners": [
+        {
+            "type": "ansible",
+            "playbook_file": "ansible/packer_db.yml"
+        }
+    ]
+```
 
 ----
 ## Homework 8 (ansible-1)
