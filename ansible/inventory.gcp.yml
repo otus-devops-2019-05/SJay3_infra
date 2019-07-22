@@ -3,6 +3,9 @@ projects:
   - infra-244211
 regions:
   - europe-west1
+groups:
+  app: "'app' in name"
+  db: "'-db' in name"
 filters: []
 auth_kind: serviceaccount
 service_account_file: ~/ansible_gcp_key.json

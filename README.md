@@ -9,6 +9,7 @@ SJay3 Infra repository
 - Создание одного плейбука для нескольких сценариев
 - Создание нескольких плейбуков
 - Использование готовых Dynamic Inventory (*)
+- Провижининг в Packer
 
 ### Создание плейбука для настройки и деплоя приложения и БД
 В этом способе у нас один плейбук и мы запускаем его на разных хостах с помощью опций `--limit`, а так же ограничиваем исполнение через `--tags`
@@ -84,7 +85,7 @@ ansible-playbook site.yml
 ```
 
 ### Использование готовых Dynamic Inventory (*)
-Для генерации динамического инвентори будем использовать встроенный в ансибл плагин `gce_compute` (вместо gce.py). [Подробней](https://docs.ansible.com/ansible/latest/scenario_guides/guide_gce.html)
+Для генерации динамического инвентори будем использовать встроенный в ансибл плагин `gce_compute` (вместо gce.py). [Подробней](https://docs.ansible.com/ansible/latest/scenario_guides/guide_gce.html) и [еще](http://matthieure.me/2018/12/31/ansible_inventory_plugin.html)
 
 Полный список инвентори плагинов можно посмотреть командой:
 
@@ -139,6 +140,15 @@ service_account_file: ~/ansible_gcp_key.json
 ansible-inventory --graph
 ```
 
+Для группировки можно использовать groups:
+
+```yaml
+groups:
+  app: "'app' in name"
+  db: "'-db' in name"
+```
+
+### Провижининг в Packer
 
 
 ----
