@@ -2,7 +2,7 @@
 #packer app provision
 - name: Packer provision app
   hosts: all
-  become: yes
+  become: true
   tasks:
     - name: Install ruby
       vars:
