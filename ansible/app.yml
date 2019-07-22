@@ -1,6 +1,6 @@
 ---
 - name: Configure app hosts
-  hosts: app
+  hosts: all
   become: true
   vars:
     db_host: 10.132.15.210
@@ -24,4 +24,3 @@
   handlers:
     - name: reload puma
       systemd: name=puma state=restarted
-      
