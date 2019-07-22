@@ -1,7 +1,7 @@
 ---
 #packer provision db
 - name: Packer provision db
-  hosts: db
+  hosts: all
   become: true
   tasks:
     - name: Add apt key
