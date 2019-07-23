@@ -17,6 +17,7 @@
         dest: /home/appuser/db_config
         owner: appuser
         group: appuser
+      notify: reload puma
 
     - name: enable puma
       systemd: name=puma enabled=yes
