@@ -3,6 +3,6 @@
   hosts: app
   become: true
   vars:
-    db_host: 10.132.15.222
+    db_host: 10.132.15.224
   roles:
     - app

@@ -6,6 +6,7 @@ SJay3 Infra repository
 - Создание роли для базы данных
 - Создание роли для приложения
 - Использование ролей
+- Создание окружений
 
 ### Создание роли для базы данных
 
@@ -38,6 +39,37 @@ ansible-galaxy init app
   roles:
     - app
 ```
+
+## Создание окружений
+
+Создадим директорию environments в каталоге ansible. В директории ansible/environments создадим 2 каталога: stage и prod.
+
+Скопируем в каталоги stage и prod ашду ansible/inventory. (Для использования dynamic inventory, так же скопируем файл inventory.gcp.yml)
+
+Зададим stage, как окружение по умолчанию. Для этого, в файле ansible.cgf изменим строку:
+
+```ini
+inventory = ./environments/stage/inventory
+```
+
+Для dynamic inventory:
+
+```ini
+inventory = ./environments/stage/inventory.gcp.yml
+```
+
+Теперь, для того, что бы начать деплой в stage, достаточно написать:
+
+```shell
+ansible-playbook deploy.yml
+```
+
+Для деплоя в prod, необходимо будет явно указывать файл инвентори:
+
+```shell
+ansible-playbook -i ./environments/prod/inventory deploy.yml
+```
+
 
 
 ----
