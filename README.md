@@ -1,6 +1,33 @@
 # SJay3_infra
 SJay3 Infra repository
 
+## Homework 10 (ansible-3)
+В данном домашнем задании было сделано:
+- Создание роли для базы данных
+- Создание роли для приложения
+
+### Создание роли для базы данных
+
+Создадим файловую структуру роли. Для этого в папке ansible/roles выполним:
+
+```shell
+ansible-galaxy init db
+```
+
+Из файла `ansible/db.yml` перенесем секцию tasks в `roles/db/tasks/main.yml`.
+Аналогично перенесем хендлеры из db.yml в `roles/db/handlers/main.yml`. В файле `defaults/main.yml` определим дефолтные значения переменных `mongo_port` и `mongo_bind_ip`. Скопируем шаблон `mongod.conf.j2` в папку `roles/db/templates`
+
+### Создание роли для приложения
+
+Создадим файловую структуру роли. Для этого в папке ansible/roles выполним:
+
+```shell
+ansible-galaxy init app
+```
+
+
+
+----
 ## Homework 9 (ansible-2)
 В данном домашнем задании было сделано:
 - Создание плейбука для настройки и деплоя приложения и БД
