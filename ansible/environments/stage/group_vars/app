@@ -1,5 +1,5 @@
 #app group vars
-db_host: 10.132.15.226
+db_host: 10.132.15.230
 nginx_sites:
   default:
     - listen 80

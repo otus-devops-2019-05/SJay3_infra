@@ -89,12 +89,6 @@ env: prod
 ## Работа с community ролями
 Будем работать с ролью `jdauphant.nginx`.
 
-Добавим в ansible.cfg еще один путь к ролям:
-
-```
-roles_path = ./.imported_roles:./roles
-```
-
 Добавим файлы requirements.yml в environment/stage и environment/prod
 
 ```yaml
@@ -108,7 +102,7 @@ roles_path = ./.imported_roles:./roles
 ansible-galaxy install -r environments/stage/requirements.yml
 ```
 
-Роль будет установлена в скрытую папку `.impored roles`. Добавим эту папку в .gitignore, что бы внешние роли не коммитились в наш репозиторий.
+Роль будет установлена в папку `jdauphant.nginx`. Добавим эту папку в .gitignore, что бы внешние роли не коммитились в наш репозиторий.
 
 ## Настройка nginx для проксирования
 
