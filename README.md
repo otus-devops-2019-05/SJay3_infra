@@ -9,6 +9,7 @@ SJay3 Infra repository
 - Создание окружений
 - Работа с community ролями
 - Настройка nginx для проксирования
+- Работа с ansible vault
 
 ### Создание роли для базы данных
 
@@ -136,6 +137,9 @@ roles:
 cd terraform/stage && terraform apply -auto-approve=true
 cd ../../ansible && ansible-playbook playbooks/site.yml
 ```
+
+## Работа с ansible vault
+
 
 ----
 ## Homework 9 (ansible-2)
