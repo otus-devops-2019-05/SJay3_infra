@@ -36,24 +36,24 @@ resource "google_compute_instance" "app" {
     ssh-keys = "appuser:${file(var.public_key_path)}"
   }
 
-  # Подключение провиженоров к ВМ
-  connection {
-    type  = "ssh"
-    user  = "appuser"
-    agent = false
+  # # Подключение провиженоров к ВМ
+  # connection {
+  #   type  = "ssh"
+  #   user  = "appuser"
+  #   agent = false
 
-  # путь до приватного ключа
-    private_key = "${file("~/.ssh/appuser")}"
-  }
+  # # путь до приватного ключа
+  #   private_key = "${file("~/.ssh/appuser")}"
+  # }
 
-  provisioner "file" {
-    content      = "${data.template_file.puma_service.rendered}"
-    destination = "/tmp/puma.service"
-  }
+  # provisioner "file" {
+  #   content      = "${data.template_file.puma_service.rendered}"
+  #   destination = "/tmp/puma.service"
+  # }
 
-  provisioner "remote-exec" {
-    script = "${path.module}/files/deploy.sh"
-  }
+  # provisioner "remote-exec" {
+  #   script = "${path.module}/files/deploy.sh"
+  # }
 }
 
 resource "google_compute_address" "app_ip" {
