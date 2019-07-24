@@ -70,7 +70,17 @@ ansible-playbook deploy.yml
 ansible-playbook -i ./environments/prod/inventory deploy.yml
 ```
 
+Далее в каждом окружении создадим папку group_vars где определим переменные для груп хостов. Файл app будет содержать переменные для группы app, файл db - для группы db, а файл all для всех хостов.
+В файле all пропишем для stage:
 
+```
+env: stage
+```
+А для prod, соответственно:
+
+```
+env: prod
+```
 
 ----
 ## Homework 9 (ansible-2)

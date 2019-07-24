@@ -1,0 +1,2 @@
+#all group vars
+env: stage
