@@ -7,6 +7,7 @@ SJay3 Infra repository
 - Создание роли для приложения
 - Использование ролей
 - Создание окружений
+- Работа с community ролями
 
 ### Создание роли для базы данных
 
@@ -84,6 +85,29 @@ env: prod
 
 Для лучшей организации директории ansible, перенесем все плейбуки в директорию playbooks, а все остальные файлы, не относящиеся к текущей конфигурации в папку old.
 
+## Работа с community ролями
+Будем работать с ролью `jdauphant.nginx`.
+
+Добавим в ansible.cfg еще один путь к ролям:
+
+```
+roles_path = ./.imported_roles:./roles
+```
+
+Добавим файлы requirements.yml в environment/stage и environment/prod
+
+```yaml
+- src: jdauphant.nginx
+  version: v2.21.1
+```
+
+Для установки роли используем команду:
+
+```shell
+ansible-galaxy install -r environments/stage/requirements.yml
+```
+
+Роль будет установлена в скрытую папку `.impored roles`. Добавим эту папку в .gitignore, что бы внешние роли не коммитились в наш репозиторий.
 
 ----
 ## Homework 9 (ansible-2)
