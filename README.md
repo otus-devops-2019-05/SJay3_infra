@@ -8,6 +8,7 @@ SJay3 Infra repository
 - Использование ролей
 - Создание окружений
 - Работа с community ролями
+- Настройка nginx для проксирования
 
 ### Создание роли для базы данных
 
@@ -108,6 +109,39 @@ ansible-galaxy install -r environments/stage/requirements.yml
 ```
 
 Роль будет установлена в скрытую папку `.impored roles`. Добавим эту папку в .gitignore, что бы внешние роли не коммитились в наш репозиторий.
+
+## Настройка nginx для проксирования
+
+Добавим следущие параметры в файл group_vars/app в stage и prod окружения.
+
+```yaml
+nginx_sites:
+  default:
+    - listen 80
+    - server_name "reddit"
+    - location / { proxy_pass http://127.0.0.1:9292; }
+```
+
+Добавим открытие 80 порта в конфигурацию терраформ для приложения. Для этого в модуле app терраформа найдем ресурс `google_compute_firewall.firewall_puma` найдем строку ports и добавим туда 80 порт:
+
+```
+ports = ["9292", "80"]
+```
+
+Добавим роль nginx в плейбук app.yml
+
+```yaml
+roles:
+  - app
+  - jdauphant.nginx
+```
+
+Теперь применим конфигурацию терраформа, а потом применим плейбук ансибла:
+
+```shell
+cd terraform/stage && terraform apply -auto-approve=true
+cd ../../ansible && ansible-playbook playbooks/site.yml
+```
 
 ----
 ## Homework 9 (ansible-2)
