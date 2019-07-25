@@ -1,6 +1,9 @@
 # SJay3_infra
 SJay3 Infra repository
 
+[![Build Status](https://travis-ci.com/otus-devops-2019-05/SJay3_infra.svg?branch=master)](https://travis-ci.com/otus-devops-2019-05/SJay3_infra)
+
+
 ## Homework 10 (ansible-3)
 В данном домашнем задании было сделано:
 - Создание роли для базы данных
