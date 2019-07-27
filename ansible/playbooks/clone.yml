@@ -1,3 +1,4 @@
+---
 - name: Clone
   hosts: app
   tasks:
@@ -5,3 +6,4 @@
       git:
         repo: https://github.com/express42/reddit.git
         dest: /home/appuser/reddit
+        version: monolith

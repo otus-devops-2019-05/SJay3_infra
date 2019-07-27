@@ -8,3 +8,5 @@ packer/immu_vars.json
 infra.sublime-workspace
 infra.sublime-project
 *.retry
+.imported_roles/
+jdauphant.nginx

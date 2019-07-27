@@ -1,6 +1,243 @@
 # SJay3_infra
 SJay3 Infra repository
 
+[![Build Status](https://travis-ci.com/otus-devops-2019-05/SJay3_infra.svg?branch=master)](https://travis-ci.com/otus-devops-2019-05/SJay3_infra)
+
+
+## Homework 10 (ansible-3)
+В данном домашнем задании было сделано:
+- Создание роли для базы данных
+- Создание роли для приложения
+- Использование ролей
+- Создание окружений
+- Работа с community ролями
+- Настройка nginx для проксирования
+- Работа с ansible vault
+- Динамические инвентори в окружениях (*)
+- Настройка TravicCI (**)
+
+### Создание роли для базы данных
+
+Создадим файловую структуру роли. Для этого в папке ansible/roles выполним:
+
+```shell
+ansible-galaxy init db
+```
+
+Из файла `ansible/db.yml` перенесем секцию tasks в `roles/db/tasks/main.yml`.
+Аналогично перенесем хендлеры из db.yml в `roles/db/handlers/main.yml`. В файле `defaults/main.yml` определим дефолтные значения переменных `mongo_port` и `mongo_bind_ip`. Скопируем шаблон `mongod.conf.j2` в папку `roles/db/templates`
+
+### Создание роли для приложения
+
+Создадим файловую структуру роли. Для этого в папке ansible/roles выполним:
+
+```shell
+ansible-galaxy init app
+```
+
+Аналогично, как и для роли db перенесем таски, хендлеры и определим дефолтные переменные в роли app. Так же перенесем шаблоны и файлы.
+
+### Использование ролей
+
+Удалим таски и хендлеры в плейбуках app.yml и db.yml. Вместо них подключим соответствующие роли.
+
+Пример подключения роли:
+
+```yaml
+  roles:
+    - app
+```
+
+## Создание окружений
+
+Создадим директорию environments в каталоге ansible. В директории ansible/environments создадим 2 каталога: stage и prod.
+
+Скопируем в каталоги stage и prod ашду ansible/inventory. (Для использования dynamic inventory, так же скопируем файл inventory.gcp.yml)
+
+Зададим stage, как окружение по умолчанию. Для этого, в файле ansible.cgf изменим строку:
+
+```ini
+inventory = ./environments/stage/inventory
+```
+
+Для dynamic inventory:
+
+```ini
+inventory = ./environments/stage/inventory.gcp.yml
+```
+
+Теперь, для того, что бы начать деплой в stage, достаточно написать:
+
+```shell
+ansible-playbook deploy.yml
+```
+
+Для деплоя в prod, необходимо будет явно указывать файл инвентори:
+
+```shell
+ansible-playbook -i ./environments/prod/inventory deploy.yml
+```
+
+Далее в каждом окружении создадим папку group_vars где определим переменные для груп хостов. Файл app будет содержать переменные для группы app, файл db - для группы db, а файл all для всех хостов.
+В файле all пропишем для stage:
+
+```yaml
+env: stage
+```
+А для prod, соответственно:
+
+```yaml
+env: prod
+```
+
+Для лучшей организации директории ansible, перенесем все плейбуки в директорию playbooks, а все остальные файлы, не относящиеся к текущей конфигурации в папку old.
+
+## Работа с community ролями
+Будем работать с ролью `jdauphant.nginx`.
+
+Добавим файлы requirements.yml в environment/stage и environment/prod
+
+```yaml
+- src: jdauphant.nginx
+  version: v2.21.1
+```
+
+Для установки роли используем команду:
+
+```shell
+ansible-galaxy install -r environments/stage/requirements.yml
+```
+
+Роль будет установлена в папку `jdauphant.nginx`. Добавим эту папку в .gitignore, что бы внешние роли не коммитились в наш репозиторий.
+
+## Настройка nginx для проксирования
+
+Добавим следущие параметры в файл group_vars/app в stage и prod окружения.
+
+```yaml
+nginx_sites:
+  default:
+    - listen 80
+    - server_name "reddit"
+    - location / { proxy_pass http://127.0.0.1:9292; }
+```
+
+Добавим открытие 80 порта в конфигурацию терраформ для приложения. Для этого в модуле app терраформа найдем ресурс `google_compute_firewall.firewall_puma` найдем строку ports и добавим туда 80 порт:
+
+```
+ports = ["9292", "80"]
+```
+
+Добавим роль nginx в плейбук app.yml
+
+```yaml
+roles:
+  - app
+  - jdauphant.nginx
+```
+
+Теперь применим конфигурацию терраформа, а потом применим плейбук ансибла:
+
+```shell
+cd terraform/stage && terraform apply -auto-approve=true
+cd ../../ansible && ansible-playbook playbooks/site.yml
+```
+
+## Работа с ansible vault
+В домашней директории создадим файл ansible_vault.key, в который запишем наш пароль для шифрования/расшифровки секретов.
+
+Мы будем использовать один пароль для 2-х окружений. В реальности, лучше использовать разные пароли для разных окружений.
+
+!! Внимание. В ansible есть баг (на текущий момент до версии 2.8 баг сохраняется), что если в ansible.cfg указан параметр `vault_password_file`, то не получится зашифровать секреты разными ключами, т.к. ансибл не хочет использовать опцию из командной строки вместо опции из конфига.
+
+В окружениях stage и prod создадим файлы credentials.yml содержащие секреты, которые необходимо зашифровать (пароли для пользователей).
+Так же создадим плейбук users.yml в котором опишем создание linux-пользователей и подключим в него файл credentials.yml в зависимости от окружения.
+
+В ansible.cfg пропишем путь до нашего ключа:
+
+```ini
+vault_password_file = ~/ansible_vault.key
+```
+
+Теперь, для того, что бы зашифровать файлы credentials.yml необходимо выполнить команду:
+
+```shell
+ansible-vault encrypt environments/stage/credentials.yml
+ansible-vault encrypt environments/prod/credentials.yml
+```
+
+Для редактирования файлов можно использовать команду:
+
+```shell
+ansible-vault edit <file>
+```
+
+Для просмотра:
+
+```shell
+ansible-vault view <file>
+```
+
+Для расшифровки:
+
+```shell
+ansible-vault decrypt <file>
+```
+
+Так же, добавим вызов плейбуку users.yml в site.yml
+
+## Динамические инвентори в окружениях (*)
+В разделе [Создание окружений](#создание-окружений) мы перенесли файлы динамического инвентори в папки с окружениями. Для того, что бы запускать ансибл с динамическим инвентори, необходимо вместо пути к обычному файлу инвентори указывать путь к inventory.gcp.yml.
+И для stage и для prod мы используем один и тот же сервисный аккаунт. В реальной жизни стоит использовать разные сервисные аккаунты + разные проекты в GCP, для разграничений разных сред.
+
+## Настройка TravicCI (**)
+### Использование trytravis
+Для того, что бы тестировать и отлаживать тесты тревиса и не захламлять основной репозиторий с разработкой существует утилиты trytravis. [ссылка на статью](https://medium.com/@Nklya/%D0%BB%D0%BE%D0%BA%D0%B0%D0%BB%D1%8C%D0%BD%D0%BE%D0%B5-%D1%82%D0%B5%D1%81%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5-%D0%B2-travisci-2b5ef9adb16e)
+
+!! На WSL эта утилита работать не захотела из-за каких-то ошибок с подключением питоновских библиотек
+
+Для установки достаточно выполнить:
+
+```shell
+pip install trytravis
+```
+
+Так же, необходимо на гитхабе завести тестовый репозиторий в имени которого содержится слово trytravis, подлкючить этот репозиторий к тревису, после чего сказать утилите о том, что его необходимо использовать с помощью команды: 
+
+```shell
+trytravis --repo <githubrepo>
+```
+
+Теперь можно даже не коммитить в основной репозиторий. Сделав изменения в репе, надо выполнить команду:
+
+```shell
+trytravis
+```
+После чего, утилита автоматически закоммитит и запушит изменения в тестовый репозиторий.
+
+### Создание тестов
+Для тестов будем использовать подход otus. Для этого сделаем форк репозтория [otus-homeworks](https://github.com/express42/otus-homeworks) и произведем некоторые изменения.
+
+В корне репозитория создадим папку tests, в которой разместим папку controls (здесь храняться тесты inspec) и файлы inspec.yml (файл-описание тестов) и run.sh (запуск inspec тестов)
+
+В корне репозитоия так же находится файл run.sh основное предназначение которого - это запуск докер-контейнера и вызов файла run.sh из папки tests.
+
+Внутри папки tests/controls находятся файлы для проверки синтаксиса файлов terraform, packer и ansible
+
+Так же удалим из репозитория все лишнее и запушим все в мастер ветку.
+
+[репозиторий с тестами](https://github.com/SJay3/otus-homeworks)
+
+Теперь в нашем основном репозитории infra поменяем файл .travis.yml что бы секция before_install выглядела следующим образом:
+
+```yaml
+before_install:
+  - curl https://raw.githubusercontent.com/express42/otus-homeworks/2019-05/run.sh | bash
+  - curl https://raw.githubusercontent.com/SJay3/otus-homeworks/master/run.sh | bash
+
+```
+
+----
 ## Homework 9 (ansible-2)
 В данном домашнем задании было сделано:
 - Создание плейбука для настройки и деплоя приложения и БД
@@ -1081,7 +1318,7 @@ git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
 
 7. Выведем список того, что мы можем установить
 
-```
+```shell
 rbenv install -l
 ```
 

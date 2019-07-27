@@ -45,7 +45,7 @@
       bundler:
         state: present
         chdir: /home/appuser/reddit
-      tags: deploy-tag  
+      tags: deploy-tag
 
   handlers:
     - name: restart mongod
