@@ -133,6 +133,7 @@ enable_plugins = gcp_compute, advanced_host_list, host_list, script, auto, yaml,
 2. Удалим плейбук users.yml из site.yml
 3. Доработаем роль db добавив таски из плейбука `packer_db.yml` в файл `install_mongo.yml`
 4. Вынемем из файла main.yml роли db все таски по отдельным файлам
+5. Доработаем роль app добавив установку ruby и разделим main.yml на несколько файлов. Добавим провижининг в вагрант
 
 ----
 ## Homework 10 (ansible-3)
