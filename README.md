@@ -131,7 +131,8 @@ enable_plugins = gcp_compute, advanced_host_list, host_list, script, auto, yaml,
 
 1. Для того, что бы на всех хостах был установле python версии 2.х, если его нет - создадим плейбук base.yml и включим его в site.yml
 2. Удалим плейбук users.yml из site.yml
-3. 
+3. Доработаем роль db добавив таски из плейбука `packer_db.yml` в файл `install_mongo.yml`
+4. Вынемем из файла main.yml роли db все таски по отдельным файлам
 
 ----
 ## Homework 10 (ansible-3)

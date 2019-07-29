@@ -1,0 +1,29 @@
+---
+#install mongod
+- name: Add apt key
+  apt_key:
+    keyserver: hkp://keyserver.ubuntu.com:80
+    id: EA312927
+    state: present
+  tags: install
+
+- name: Add mongo repo
+  apt_repository:
+    repo: deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse
+    filename: mongodb-org-3.2
+    state: present
+  tags: install
+
+- name: Install MongoDB
+  apt:
+    update_cache: yes
+    name: mongodb-org
+    state: present
+  tags: install
+
+- name: Start and enable mongo
+  systemd:
+    name: mongod
+    state: started
+    enabled: yes
+  tags: install
