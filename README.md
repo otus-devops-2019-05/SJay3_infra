@@ -87,6 +87,52 @@ vagrant box list
 vagrant status
 ```
 
+Подключение к виртуальной машине:
+
+```shell
+vagrant ssh <vm_name>
+```
+
+#### Провижининг в Vagrant
+Вагрант поддерживает провижинеры, в том числе и ансибл. Определение провиженера производится в вагрантфайле внутри конфигурации вм:
+
+```ruby
+  config.vm.define "dbserver" do |db|
+    db.vm.box = "ubuntu/xenial64"
+    db.vm.hostname = "dbserver"
+    db.vm.network :private_network, ip: "10.10.10.10"
+
+    db.vm.provision "ansible" do |ansible|
+      ansible.playbook = "playbooks/site.yml"
+      ansible.groups = {
+        "db" => ["dbserver"],
+        "db:vars" => {"mongo_bind_ip" => "0.0.0.0"}
+      }
+      
+    end
+  end
+```
+
+Провижининг происходит автоматически, но можно запустить его вручную, если машины уже запущены:
+
+```shell
+vagrant provision <vm_name>
+```
+
+Т.к. в ansible мы использовали dynamic inventory, а вагрант генерит инвентори в формате ini, необходимо проверить настройки ansible.cfg, что бы ансибл мог брать инвентори не только из GCP:
+
+```cfg
+[inventory]
+enable_plugins = gcp_compute, advanced_host_list, host_list, script, auto, yaml, ini
+
+```
+
+#### Доработка ролей ансибла
+
+1. Для того, что бы на всех хостах был установле python версии 2.х, если его нет - создадим плейбук base.yml и включим его в site.yml
+2. Удалим плейбук users.yml из site.yml
+3. 
+
 ----
 ## Homework 10 (ansible-3)
 В данном домашнем задании было сделано:
