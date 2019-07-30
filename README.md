@@ -8,6 +8,7 @@ SJay3 Infra repository
 - Установка Vagrant
 - Создание локальной инфраструктуры с помощью vagrant
 - Настройка Vagrant для корректного проксирования nginx
+- Установка зависимостей для тестирования ролей ansible
 
 ### Установка Vagrant
 Vagrant в основном предназначен для локального управления гипервизорами.
@@ -138,6 +139,25 @@ enable_plugins = gcp_compute, advanced_host_list, host_list, script, auto, yaml,
 6. Параметризируем пользователя из под которого будет запускаться приложение: Добавим в роль переменную и параметризируем все файлы, где встречается хардкод appuser
 
 ### Настройка Vagrant для корректного проксирования nginx
+Для того, что бы nginx нормально проксировал 80 порт на 9292, необходимо в провижининг вагранта добавить extra_vars с переменныеми nginx, которые у нас были сделаны в ansible:
+
+```ruby
+      ansible.extra_vars = {
+        "deploy_user" => "vagrant",
+        "nginx_sites" => {
+          "default" => ["listen 80", "server_name \"reddit\"", "location / { proxy_pass http://127.0.0.1:9292; }"]
+        }
+      }
+```
+
+### Установка зависимостей для тестирования ролей ansible
+Для локального тестирования ролей, нам потребуются следующие по:
+- ansible
+- molecule
+- Testinfra
+
+Рекомендуется устанавливать данные утилиты через pip в virtualenv среде ([инструкция](https://docs.python-guide.org/dev/virtualenvs/))
+
 
 
 ----
