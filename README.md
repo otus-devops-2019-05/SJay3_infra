@@ -10,6 +10,7 @@ SJay3 Infra repository
 - Настройка Vagrant для корректного проксирования nginx
 - Установка зависимостей для тестирования ролей ansible
 - Тестирование роли db
+- Использование ролей в плейбуках пакера
 
 ### Установка Vagrant
 Vagrant в основном предназначен для локального управления гипервизорами.
@@ -251,6 +252,28 @@ def test_mongo_listening_port(host):
   mongo_socket = host.socket("tcp://0.0.0.0:27017")
   assert mongo_socket.is_listening
 ```
+
+### Использование ролей в плейбуках пакера
+Переделаем плейбуки `packer_db.yml` и `packer_app.yml` Под использование ролей.
+Для того, что бы выполнять только таски с тегами из роли, необходимо указать в шаблоне пакера теги. Пример для шаблона db.json:
+
+```json
+    "provisioners": [
+        {
+            "type": "ansible",
+            "extra_arguments": ["--tags", "install"],
+            "playbook_file": "ansible/playbooks/packer_db.yml"
+        }
+    ]
+```
+
+Т.к. мы запускаем команду `packer build` из корня репозитория, то ансибл не сможет найти роли, т.к. не будет знать, где их искать, а в стандартных директориях нет ни ролей ни файла ansible.cfg. Необходимо передать путь к папке с ролями через переменную окружения `ANSIBLE_ROLES_PATH`. Добавим в провиженер строку:
+
+```
+"ansible_env_vars": ["ANSIBLE_ROLES_PATH={{ pwd }}/ansible/roles"]
+```
+
+Аналогично сделаем и для плейбука packer_app.yml.
 
 ----
 ## Homework 10 (ansible-3)

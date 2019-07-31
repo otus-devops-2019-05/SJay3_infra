@@ -3,25 +3,5 @@
 - name: Packer provision db
   hosts: all
   become: true
-  tasks:
-    - name: Add apt key
-      apt_key:
-        # keyserver: hkp://keyserver.ubuntu.com:80
-        # id: EA312927
-        url: https://www.mongodb.org/static/pgp/server-3.2.asc
-        state: present
-    - name: Add mongo repo
-      apt_repository:
-        repo: deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse
-        filename: mongodb-org-3.2
-        state: present
-    - name: Install MongoDB
-      apt:
-        update_cache: yes
-        name: mongodb-org
-        state: present
-    - name: Start and enable mongo
-      systemd:
-        name: mongod
-        state: started
-        enabled: yes
+  roles:
+    - db
