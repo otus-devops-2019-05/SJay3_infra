@@ -244,6 +244,14 @@ molecule converge
 molecule verify
 ```
 
+Добавим тест для проверки того, что монга случает порт 27017:
+
+```python
+def test_mongo_listening_port(host):
+  mongo_socket = host.socket("tcp://0.0.0.0:27017")
+  assert mongo_socket.is_listening
+```
+
 ----
 ## Homework 10 (ansible-3)
 В данном домашнем задании было сделано:
