@@ -9,6 +9,7 @@ SJay3 Infra repository
 - Создание локальной инфраструктуры с помощью vagrant
 - Настройка Vagrant для корректного проксирования nginx
 - Установка зависимостей для тестирования ролей ansible
+- Тестирование роли db
 
 ### Установка Vagrant
 Vagrant в основном предназначен для локального управления гипервизорами.
@@ -177,6 +178,39 @@ pip install -r requirements.txt
 ```shell
 molecule --version
 ```
+
+### Тестирование роли db
+В директории ansible/roles/db выполним команду для создания заготовки для тестов для роли db:
+
+```shell
+molecule init scenario --scenario-name default -r db -d vagrant
+```
+Опция `-d` указывает какой драйвер использовать. Мы используем vagrant.
+
+Отредактируем файл db/molecule/default/tests/test_default.py, вставив в него содержимое:
+
+```python
+import os
+
+import testinfra.utils.ansible_runner
+
+testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
+    os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
+
+# check if MongoDB is enabled and running
+def test_mongo_running_and_enabled(host):
+    mongo = host.service("mongod")
+    assert mongo.is_running
+    assert mongo.is_enabled
+
+# check if configuration file contains the required line
+def test_config_file(host):
+    config_file = host.file('/etc/mongod.conf')
+    assert config_file.contains('bindIp: 0.0.0.0')
+    assert config_file.is_file
+```
+
+В файле db/molecule/default/molecule.yml сожержится описание тестовой машины, которую будет создавать молекула.
 
 ----
 ## Homework 10 (ansible-3)
