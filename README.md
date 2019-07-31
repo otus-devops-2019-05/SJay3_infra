@@ -286,7 +286,15 @@ def test_mongo_listening_port(host):
   name: db
 ```
 
-Саму роль удалим из репозитория и 
+Саму роль удалим из репозитория и добавим её в .gitignore.
+
+Теперь для того, что бы использовать роль, достаточно установить все зависимые роли в окружении:
+
+```shell
+ansible-galaxy install -r environments/<env>/requirements.yml
+```
+
+
 
 ----
 ## Homework 10 (ansible-3)
