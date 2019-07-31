@@ -212,6 +212,38 @@ def test_config_file(host):
 
 В файле db/molecule/default/molecule.yml сожержится описание тестовой машины, которую будет создавать молекула.
 
+Создание виртуальной машины через molecule:
+
+```shell
+molecule create
+```
+
+Посмотреть список машин:
+
+```shell
+molecule list
+```
+
+Подключиться к машине по ssh:
+
+```shell
+molecule login -h <instance_name>
+```
+
+molecule генерит плейбук для применения роли в db/molecule/default/playbook.yml. Добавим в плейбук выполнение от рута, а так же переменную `mongo_bind_ip`
+
+Применим плейбук:
+
+```shell
+molecule converge
+```
+
+Для запуска тестов выполним:
+
+```shell
+molecule verify
+```
+
 ----
 ## Homework 10 (ansible-3)
 В данном домашнем задании было сделано:
