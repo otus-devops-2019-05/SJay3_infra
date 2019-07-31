@@ -158,7 +158,25 @@ enable_plugins = gcp_compute, advanced_host_list, host_list, script, auto, yaml,
 
 Рекомендуется устанавливать данные утилиты через pip в virtualenv среде ([инструкция](https://docs.python-guide.org/dev/virtualenvs/))
 
+Добавим в файл ansible/requrements.txt следующее содержание:
 
+```
+molecule>=2.6
+testinfra>=1.10
+python-vagrant>=0.5.15
+```
+
+После чего выполним команду:
+
+```shell
+pip install -r requirements.txt
+```
+
+Проверим версию молекулы:
+
+```shell
+molecule --version
+```
 
 ----
 ## Homework 10 (ansible-3)
