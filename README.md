@@ -3,7 +3,400 @@ SJay3 Infra repository
 
 [![Build Status](https://travis-ci.com/otus-devops-2019-05/SJay3_infra.svg?branch=master)](https://travis-ci.com/otus-devops-2019-05/SJay3_infra)
 
+## Homework 11 (ansible-4)
+В данном домашнем задании было сделано:
+- Установка Vagrant
+- Создание локальной инфраструктуры с помощью vagrant
+- Настройка Vagrant для корректного проксирования nginx (*)
+- Установка зависимостей для тестирования ролей ansible
+- Тестирование роли db
+- Использование ролей в плейбуках пакера
+- Вынос роли db в отдельный репозиторий (*)
 
+### Установка Vagrant
+Vagrant в основном предназначен для локального управления гипервизорами.
+[ссылка на скачивание](https://www.vagrantup.com/downloads.html)
+
+Обычно с vagrant используют virtual box, но для его использования необходимо сначала отключить другие гипервизоры (в частности, на windows необходимо выключить hyper-v).
+
+#### Установка на windows
+1. Скачиваем дистрибутив
+2. Запускаем msi-пакет и следуем инструкциям установщика
+3. Перезагружаемся
+4. Проверяем, что вагрант установился. Открываем консоль
+
+```
+vagrant -v
+```
+
+##### Особенности при использовании hyperv
+При первом запуске вагрант может сказать, что используется неизвестный провайдер. В этом случае, следует выполнить команду:
+
+```
+vagrang up --provider=hyperv
+```
+
+!! Провайдер hyperv не умеет работать с сетью. Поэтому при старте машины он спросит, какой виртуальный коммутатор выбрать.
+Так же игнорируются все настройки сети, однако, в консоль будет выведен ip адрес машины, которая будет создана.
+
+!! Вагрант по умолчанию подключает smb шару в виртуальную машину. Для Windows требуются права администратора, что бы это сделать, однако, по какой-то причине шара вылетает с ошибкой. Можно отключить создание шары в vagrantfile:
+
+```
+config.vm.synced_folder ".", "/vagrant", disabled: true
+```
+
+А можно отключить функцию SMB Direct в windows (Панель управления -> Программы и компоненты -> Включение или отключение компонентов Windows) и тогда шара нормально подключится.
+
+#### Установка на Linux (ubuntu)
+1. Скачиваем дистрибутив
+
+```shell
+wget https://releases.hashicorp.com/vagrant/2.2.5/vagrant_2.2.5_x86_64.deb
+```
+
+2. Устанавливаем vagrant
+
+```shell
+sudo dpkg -i vagrant_2.2.5_x86_64.deb
+```
+
+3. Проверяем установку вагранта
+
+```shell
+vagrant -v
+```
+
+### Создание локальной инфраструктуры с помощью vagrant
+В директории ansible создадим файл Vagrantfile в котором опишем создание нашей инфраструктуры локально.
+
+Установим virtualbox на виртульную машину с ubuntu 18.
+Для успешной установки лучше следовать данной [инструкции](http://www.bojankomazec.com/2019/04/how-to-install-virtualbox-on-ubuntu-1804.html), т.к. есть проблемы с EFI и модулями ядра/
+
+Для запуска виртуальных машин, необходимо открыть консоль от имени администратора, после чего в директории ansible выполнить:
+
+```
+vagrant up
+```
+
+Вагрант проверит наличие образов (box) на локальной машине и скачает, если их нет. После чего попробует запустить виртуальные машины.
+
+Проверить наличие образов можно командой:
+
+```
+vagrant box list
+```
+
+Проверка статуса виртуаульных машин:
+
+```
+vagrant status
+```
+
+Подключение к виртуальной машине:
+
+```shell
+vagrant ssh <vm_name>
+```
+
+#### Провижининг в Vagrant
+Вагрант поддерживает провижинеры, в том числе и ансибл. Определение провиженера производится в вагрантфайле внутри конфигурации вм:
+
+```ruby
+  config.vm.define "dbserver" do |db|
+    db.vm.box = "ubuntu/xenial64"
+    db.vm.hostname = "dbserver"
+    db.vm.network :private_network, ip: "10.10.10.10"
+
+    db.vm.provision "ansible" do |ansible|
+      ansible.playbook = "playbooks/site.yml"
+      ansible.groups = {
+        "db" => ["dbserver"],
+        "db:vars" => {"mongo_bind_ip" => "0.0.0.0"}
+      }
+      
+    end
+  end
+```
+
+Провижининг происходит автоматически, но можно запустить его вручную, если машины уже запущены:
+
+```shell
+vagrant provision <vm_name>
+```
+
+Т.к. в ansible мы использовали dynamic inventory, а вагрант генерит инвентори в формате ini, необходимо проверить настройки ansible.cfg, что бы ансибл мог брать инвентори не только из GCP:
+
+```cfg
+[inventory]
+enable_plugins = gcp_compute, advanced_host_list, host_list, script, auto, yaml, ini
+
+```
+
+#### Доработка ролей ансибла
+
+1. Для того, что бы на всех хостах был установле python версии 2.х, если его нет - создадим плейбук base.yml и включим его в site.yml
+2. Удалим плейбук users.yml из site.yml
+3. Доработаем роль db добавив таски из плейбука `packer_db.yml` в файл `install_mongo.yml`
+4. Вынемем из файла main.yml роли db все таски по отдельным файлам
+5. Доработаем роль app добавив установку ruby и разделим main.yml на несколько файлов. Добавим провижининг в вагрант
+6. Параметризируем пользователя из под которого будет запускаться приложение: Добавим в роль переменную и параметризируем все файлы, где встречается хардкод appuser
+
+### Настройка Vagrant для корректного проксирования nginx (*)
+Для того, что бы nginx нормально проксировал 80 порт на 9292, необходимо в провижининг вагранта добавить extra_vars с переменныеми nginx, которые у нас были сделаны в ansible:
+
+```ruby
+      ansible.extra_vars = {
+        "deploy_user" => "vagrant",
+        "nginx_sites" => {
+          "default" => ["listen 80", "server_name \"reddit\"", "location / { proxy_pass http://127.0.0.1:9292; }"]
+        }
+      }
+```
+
+### Установка зависимостей для тестирования ролей ansible
+Для локального тестирования ролей, нам потребуются следующие по:
+- ansible
+- molecule
+- Testinfra
+
+Рекомендуется устанавливать данные утилиты через pip в virtualenv среде ([инструкция](https://docs.python-guide.org/dev/virtualenvs/))
+
+Добавим в файл ansible/requrements.txt следующее содержание:
+
+```
+molecule>=2.6
+testinfra>=1.10
+python-vagrant>=0.5.15
+```
+
+После чего выполним команду:
+
+```shell
+pip install -r requirements.txt
+```
+
+Проверим версию молекулы:
+
+```shell
+molecule --version
+```
+
+### Тестирование роли db
+В директории ansible/roles/db выполним команду для создания заготовки для тестов для роли db:
+
+```shell
+molecule init scenario --scenario-name default -r db -d vagrant
+```
+Опция `-d` указывает какой драйвер использовать. Мы используем vagrant.
+
+Отредактируем файл db/molecule/default/tests/test_default.py, вставив в него содержимое:
+
+```python
+import os
+
+import testinfra.utils.ansible_runner
+
+testinfra_hosts = testinfra.utils.ansible_runner.AnsibleRunner(
+    os.environ['MOLECULE_INVENTORY_FILE']).get_hosts('all')
+
+# check if MongoDB is enabled and running
+def test_mongo_running_and_enabled(host):
+    mongo = host.service("mongod")
+    assert mongo.is_running
+    assert mongo.is_enabled
+
+# check if configuration file contains the required line
+def test_config_file(host):
+    config_file = host.file('/etc/mongod.conf')
+    assert config_file.contains('bindIp: 0.0.0.0')
+    assert config_file.is_file
+```
+
+В файле db/molecule/default/molecule.yml сожержится описание тестовой машины, которую будет создавать молекула.
+
+Создание виртуальной машины через molecule:
+
+```shell
+molecule create
+```
+
+Посмотреть список машин:
+
+```shell
+molecule list
+```
+
+Подключиться к машине по ssh:
+
+```shell
+molecule login -h <instance_name>
+```
+
+molecule генерит плейбук для применения роли в db/molecule/default/playbook.yml. Добавим в плейбук выполнение от рута, а так же переменную `mongo_bind_ip`
+
+Применим плейбук:
+
+```shell
+molecule converge
+```
+
+Для запуска тестов выполним:
+
+```shell
+molecule verify
+```
+
+Добавим тест для проверки того, что монга случает порт 27017:
+
+```python
+def test_mongo_listening_port(host):
+  mongo_socket = host.socket("tcp://0.0.0.0:27017")
+  assert mongo_socket.is_listening
+```
+
+### Использование ролей в плейбуках пакера
+Переделаем плейбуки `packer_db.yml` и `packer_app.yml` Под использование ролей.
+Для того, что бы выполнять только таски с тегами из роли, необходимо указать в шаблоне пакера теги. Пример для шаблона db.json:
+
+```json
+    "provisioners": [
+        {
+            "type": "ansible",
+            "extra_arguments": ["--tags", "install"],
+            "playbook_file": "ansible/playbooks/packer_db.yml"
+        }
+    ]
+```
+
+Т.к. мы запускаем команду `packer build` из корня репозитория, то ансибл не сможет найти роли, т.к. не будет знать, где их искать, а в стандартных директориях нет ни ролей ни файла ansible.cfg. Необходимо передать путь к папке с ролями через переменную окружения `ANSIBLE_ROLES_PATH`. Добавим в провиженер строку:
+
+```
+"ansible_env_vars": ["ANSIBLE_ROLES_PATH={{ pwd }}/ansible/roles"]
+```
+
+Аналогично сделаем и для плейбука packer_app.yml.
+
+### Вынос роли db в отдельный репозиторий (*)
+
+Создадим отдельный репозиторий и вынесем туда роль. 
+В файлах requirements.yml в каждом из окружений добавим:
+
+```yaml
+- src: https://github.com/SJay3/ansible-otus-db
+  name: db
+```
+
+Саму роль удалим из репозитория и добавим её в .gitignore.
+
+Теперь для того, что бы использовать роль, достаточно установить все зависимые роли в окружении:
+
+```shell
+ansible-galaxy install -r environments/<env>/requirements.yml
+```
+
+#### Подключаем роль к TravisCI для автоматического прогона тестов в GCE
+
+Для начала создадим сервисный аккаунт для тревиса и создадим для него ключ:
+
+```shell
+gcloud iam service-accounts keys create ~/travis_gc
+p_key.json --iam-account travis-ci@infra-244211.iam.gserviceaccount.com
+```
+
+Далее сгенерируем ssh-ключ для подключения к инстансам и добавим его в метадату нашего проекта:
+
+```shell
+ssh-keygen -t rsa -f ~/google_compute_engine -C 'travis' -q -N ''
+```
+
+Создадим в корне репозитория с ролью файл .travis.yml со следующим содержимым:
+
+```yaml
+language: python
+python:
+  - '3.6'
+install:
+  - pip install ansible>=2.4.0 molecule apache-libcloud paramiko
+script:
+  - molecule --debug test
+after_script:
+  - molecule --debug destroy
+```
+
+Теперь подключим наш репозиторий к тревису (через гитхаб) и выполним команды для шифрования данных от GCP:
+
+```shell
+travis encrypt GCE_SERVICE_ACCOUNT_EMAIL='travis-ci@infra-244211.iam.gserviceaccount.com' --add --com
+travis encrypt GCE_CREDENTIALS_FILE="$(pwd)/credentials.json" --add --com
+travis encrypt GCE_PROJECT_ID='infra-244211' --add --community
+```
+
+Далее создаем архив с ключем и кредами сервисного аккаунта гугла:
+
+```shell
+cd ~
+tar cvf secrets.tar credentials.json google_compute_engine
+cd -
+mv ~/secrets.tar .
+```
+
+После логинимся в тревисе и создаем шифрованый файл:
+
+```shell
+travis login
+travis encrypt-file secrets.tar --add
+```
+
+!! Не забыть добавить secrets.tar в .gitignore
+
+Добавим следующие шаги в .travis.yml в секцию before_install:
+
+```yaml
+- tar xvf secrets.tar
+- mv google_compute_engine /home/travis/.ssh/
+- chmod 0600 /home/travis/.ssh/google_compute_engine
+```
+
+#### Тестирование через molecule в GCE
+
+Из корня репозитория выполним команду создания нового сценария molecule:
+
+```shell
+molecule init scenario --scenario-name gce_test -r <role_name> -d gce
+```
+где <role_name> - это имя папки в которой находится склонированный репозиторий с ролью
+
+Перенесем тесты вагранта в новый сценарий gce_test: Из `molecule/default/tests/test_default.py` в `molecule/gce_test/tests/test_default.py`.
+
+Аналогичным образом внесем изменения в плейбук gce_test, добавив туда выполнение от рута и переменную `mongo_bind_ip`.
+
+В файле `.travis.yml` в шагах вызова молекулы укажем, что необходимо запускать сценарий gce_test.
+Для того, что бы при выполнении опеаций в GCP мог найтись ключ сервисного аккаунта добавим так же в разделе env следующие параметры:
+
+```yaml
+env:
+  matrix:
+    - GCE_CREDENTIALS_FILE="$(pwd)/travis_gcp_key.json"
+```
+
+Тем самым мы записываем путь к файлу ключа в переменную окружения.
+
+#### Интеграция со slack
+
+Для интеграции github и slack добавим приложение в github, после чего в слаке выполним команду:
+
+```
+/github subscribe SJay3/ansible-otus-db commits:all
+```
+
+Для интеграции тревиса со слаком, сначала добавим конфигурацию в slack, перейдем в репозиторий роли и выполним команду:
+
+```shell
+travis encrypt "devops-team-otus:<ваш_токен>#dmitriy_usachev" \
+--add notifications.slack.rooms --com
+```
+
+----
 ## Homework 10 (ansible-3)
 В данном домашнем задании было сделано:
 - Создание роли для базы данных

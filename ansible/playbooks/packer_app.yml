@@ -3,14 +3,6 @@
 - name: Packer provision app
   hosts: all
   become: true
-  tasks:
-    - name: Install ruby
-      vars:
-        packages:
-          - ruby-full
-          - ruby-bundler
-          - build-essential
-      apt:
-        name: "{{ packages }}"
-        update_cache: yes
+  roles:
+    - app
 
