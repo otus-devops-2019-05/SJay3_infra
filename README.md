@@ -316,7 +316,7 @@ language: python
 python:
   - '3.6'
 install:
-  - pip install ansible>=2.4.0 molecule apache-libcloud
+  - pip install ansible>=2.4.0 molecule apache-libcloud paramiko
 script:
   - molecule --debug test
 after_script:
@@ -357,8 +357,44 @@ travis encrypt-file secrets.tar --add
 - chmod 0600 /home/travis/.ssh/google_compute_engine
 ```
 
-Теперь заменим конфигурацию молекулы с использования вагранта на использование GCE.
+#### Тестирование через molecule в GCE
 
+Из корня репозитория выполним команду создания нового сценария molecule:
+
+```shell
+molecule init scenario --scenario-name gce_test -r <role_name> -d gce
+```
+где <role_name> - это имя папки в которой находится склонированный репозиторий с ролью
+
+Перенесем тесты вагранта в новый сценарий gce_test: Из `molecule/default/tests/test_default.py` в `molecule/gce_test/tests/test_default.py`.
+
+Аналогичным образом внесем изменения в плейбук gce_test, добавив туда выполнение от рута и переменную `mongo_bind_ip`.
+
+В файле `.travis.yml` в шагах вызова молекулы укажем, что необходимо запускать сценарий gce_test.
+Для того, что бы при выполнении опеаций в GCP мог найтись ключ сервисного аккаунта добавим так же в разделе env следующие параметры:
+
+```yaml
+env:
+  matrix:
+    - GCE_CREDENTIALS_FILE="$(pwd)/travis_gcp_key.json"
+```
+
+Тем самым мы записываем путь к файлу ключа в переменную окружения.
+
+#### Интеграция со slack
+
+Для интеграции github и slack добавим приложение в github, после чего в слаке выполним команду:
+
+```
+/github subscribe SJay3/ansible-otus-db commits:all
+```
+
+Для интеграции тревиса со слаком, сначала добавим конфигурацию в slack, перейдем в репозиторий роли и выполним команду:
+
+```shell
+travis encrypt "devops-team-otus:<ваш_токен>#dmitriy_usachev" \
+--add notifications.slack.rooms --com
+```
 
 ----
 ## Homework 10 (ansible-3)
