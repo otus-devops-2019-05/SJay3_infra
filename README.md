@@ -294,6 +294,70 @@ def test_mongo_listening_port(host):
 ansible-galaxy install -r environments/<env>/requirements.yml
 ```
 
+#### Подключаем роль к TravisCI для автоматического прогона тестов в GCE
+
+Для начала создадим сервисный аккаунт для тревиса и создадим для него ключ:
+
+```shell
+gcloud iam service-accounts keys create ~/travis_gc
+p_key.json --iam-account travis-ci@infra-244211.iam.gserviceaccount.com
+```
+
+Далее сгенерируем ssh-ключ для подключения к инстансам и добавим его в метадату нашего проекта:
+
+```shell
+ssh-keygen -t rsa -f ~/google_compute_engine -C 'travis' -q -N ''
+```
+
+Создадим в корне репозитория с ролью файл .travis.yml со следующим содержимым:
+
+```yaml
+language: python
+python:
+  - '3.6'
+install:
+  - pip install ansible>=2.4.0 molecule apache-libcloud
+script:
+  - molecule --debug test
+after_script:
+  - molecule --debug destroy
+```
+
+Теперь подключим наш репозиторий к тревису (через гитхаб) и выполним команды для шифрования данных от GCP:
+
+```shell
+travis encrypt GCE_SERVICE_ACCOUNT_EMAIL='travis-ci@infra-244211.iam.gserviceaccount.com' --add --com
+travis encrypt GCE_CREDENTIALS_FILE="$(pwd)/credentials.json" --add --com
+travis encrypt GCE_PROJECT_ID='infra-244211' --add --community
+```
+
+Далее создаем архив с ключем и кредами сервисного аккаунта гугла:
+
+```shell
+cd ~
+tar cvf secrets.tar credentials.json google_compute_engine
+cd -
+mv ~/secrets.tar .
+```
+
+После логинимся в тревисе и создаем шифрованый файл:
+
+```shell
+travis login
+travis encrypt-file secrets.tar --add
+```
+
+!! Не забыть добавить secrets.tar в .gitignore
+
+Добавим следующие шаги в .travis.yml в секцию before_install:
+
+```yaml
+- tar xvf secrets.tar
+- mv google_compute_engine /home/travis/.ssh/
+- chmod 0600 /home/travis/.ssh/google_compute_engine
+```
+
+Теперь заменим конфигурацию молекулы с использования вагранта на использование GCE.
 
 
 ----
